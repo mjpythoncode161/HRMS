@@ -44,6 +44,9 @@ ALLOWED_HOSTS = [
 ]
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://hrms-wswu.onrender.com",
+]
 # Application definition
 
 INSTALLED_APPS = [

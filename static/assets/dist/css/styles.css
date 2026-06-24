@@ -1,0 +1,171 @@
+.toast{
+  display: none;
+  min-width: 20vw
+}
+.toast.show {
+    display: block;
+    opacity: 1;
+    position: fixed;
+    z-index: 99999999;
+    margin: 20px;
+    right: 0;
+    top: 3.5rem;
+}
+.swal2-container{
+    z-index: 99999999;
+}
+#preloader2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #ffffff82;
+}
+
+#preloader2:before {
+  content: "";
+  position: fixed;
+  top: calc(50% - 30px);
+  left: calc(50% - 30px);
+  border: 6px solid #1977cc;
+  border-top-color: #d1e6f9;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: animate-preloader 1s linear infinite;
+  animation: animate-preloader 1s linear infinite;
+}
+@-webkit-keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-preloader {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    font-size: smaller;
+    color: #000000cf;
+    font-style: italic;
+}
+ .modal-dialog.large {
+    width: 80% !important;
+    max-width: unset;
+  }
+  .modal-dialog.mid-large {
+    width: 50% !important;
+    max-width: unset;
+  }
+  #viewer_modal .btn-close {
+    position: absolute;
+    z-index: 999999;
+    /*right: -4.5em;*/
+    background: unset;
+    color: white;
+    border: unset;
+    font-size: 27px;
+    top: 0;
+}
+#viewer_modal .modal-dialog {
+        width: 80%;
+    max-width: unset;
+    height: calc(90%);
+    max-height: unset;
+}
+  #viewer_modal .modal-content {
+       background: black;
+    border: unset;
+    height: calc(100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #viewer_modal img,#viewer_modal video{
+    max-height: calc(100%);
+    max-width: calc(100%);
+  }
+
+/* Overrides loaded after AdminLTE */
+.badge-success,
+a.badge-success,
+a.badge-success:hover,
+a.badge-success:focus {
+  color: #000;
+  background-color: rgb(79, 200, 79);
+}
+
+/* Fix broken AdminLTE success color (#3f67915 is invalid hex — green only showed on hover) */
+:root {
+  --green: #28a745;
+  --success: #28a745;
+}
+
+.btn-success,
+.btn-success.disabled,
+.btn-success:disabled,
+a.btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: #fff !important;
+}
+
+.btn-success:hover,
+.btn-success:focus,
+.btn-success.focus,
+.btn-success:not(:disabled):not(.disabled):active,
+.btn-success:not(:disabled):not(.disabled).active,
+.show > .btn-success.dropdown-toggle {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+  color: #fff !important;
+}
+
+.bg-gradient-success,
+.bg-success.btn,
+.btn.bg-gradient-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: #fff !important;
+}
+
+.bg-gradient-success:hover,
+.bg-success.btn:hover,
+.btn.bg-gradient-success:hover {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+  color: #fff !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.btn-outline-success {
+  color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus,
+.btn-outline-success.active {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+  color: #fff !important;
+}

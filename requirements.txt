@@ -10,3 +10,7 @@ django-cors-headers==4.7.0
 
 # ── Image Processing (required for ImageField) ─────────────────────────────────
 Pillow==11.3.0
+
+# ── Production Server & Static Files ───────────────────────────────────────────
+gunicorn==23.0.0
+whitenoise==6.9.0

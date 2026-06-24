@@ -23,22 +23,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "cz=&%f*9(d*zo$_55p=(p)(eki#p$pb^0159-)8k^6$9c3l&_b"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False  # Set to False in production
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
+
 
 ALLOWED_HOSTS = [
+    "*",
     "localhost",
     "127.0.0.1",
-    "147.93.107.11",
-    "hrms-wswu.onrender.com",
+    "apmindataai.onrender.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://hrms-wswu.onrender.com",
+    "https://apmindataai.onrender.com",
 ]
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -56,6 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -138,15 +136,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Silence AutoField W042 warnings
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-
 
 SESSION_COOKIE_AGE = 86400
 
@@ -170,4 +168,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 # Allow credentials (cookies, Authorization headers).
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = ["https://quickhr.in", "https://www.quickhr.in"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://quickhr.in",
+    "https://www.quickhr.in",
+    "https://hrms-wswu.onrender.com",
+    "https://*.onrender.com",
+]

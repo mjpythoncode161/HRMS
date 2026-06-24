@@ -1,0 +1,236 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Manage Account</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <h3 class="card-title text-primary">Account Information</h3>
+            </div>
+            <div class="card-body">
+              {% if messages %}
+              {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible">
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="alert"
+                  aria-hidden="true"
+                >
+                  &times;
+                </button>
+                {{ message }}
+              </div>
+              {% endfor %}
+              {% endif %}
+
+              <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Personal Information -->
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="text-primary">First Name *</label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        class="form-control"
+                        value="{{ user.first_name }}"
+                        required
+                        placeholder="Enter first name"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="text-primary">Last Name</label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        class="form-control"
+                        value="{{ user.last_name }}"
+                        placeholder="Enter last name"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="text-primary">Email Address *</label>
+                      <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        value="{{ user.email }}"
+                        required
+                        placeholder="Enter email address"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="text-primary">Contact Number *</label>
+                      <input
+                        type="text"
+                        name="username"
+                        class="form-control"
+                        value="{{ user.username }}"
+                        required
+                        placeholder="Enter contact number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Password Change Section -->
+                <div class="row">
+                  <div class="col-md-12">
+                    <h5 class="text-primary">Change Password (Optional)</h5>
+                    <p class="text-muted">
+                      <small>Leave password fields empty if you don't want to change your password.</small>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="text-primary">Current Password</label>
+                      <input
+                        type="password"
+                        name="current_password"
+                        class="form-control"
+                        placeholder="Enter current password"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="text-primary">New Password</label>
+                      <input
+                        type="password"
+                        name="new_password"
+                        class="form-control"
+                        placeholder="Enter new password (min 8 chars)"
+                        minlength="8"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="text-primary">Confirm New Password</label>
+                      <input
+                        type="password"
+                        name="confirm_password"
+                        class="form-control"
+                        placeholder="Confirm new password"
+                        minlength="8"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Current Account Info -->
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="alert alert-info">
+                      <h6><i class="fas fa-info-circle"></i> Current Account Details</h6>
+                      <p class="mb-1"><strong>Full Name:</strong> {{ user.get_full_name|default:"Not set" }}</p>
+                      <p class="mb-1"><strong>Email:</strong> {{ user.email|default:"Not set" }}</p>
+                      <p class="mb-1"><strong>Username:</strong> {{ user.username }}</p>
+                      <p class="mb-0"><strong>Last Login:</strong> {{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+            <div class="card-footer border-top border-info">
+              <div class="d-flex w-100 justify-content-center align-items-center">
+                <button class="btn btn-flat bg-gradient-primary mx-2" type="submit" form="accountForm">
+                  <i class="fas fa-save"></i> Update Account
+                </button>
+                <a class="btn btn-flat bg-gradient-secondary mx-2" href="{% url 'home' %}">
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Password Validation JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const newPasswordField = document.querySelector('input[name="new_password"]');
+    const confirmPasswordField = document.querySelector('input[name="confirm_password"]');
+    const currentPasswordField = document.querySelector('input[name="current_password"]');
+
+    // Add form ID for button reference
+    form.id = 'accountForm';
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+      const newPassword = newPasswordField.value;
+      const confirmPassword = confirmPasswordField.value;
+      const currentPassword = currentPasswordField.value;
+
+      // If user is trying to change password
+      if (newPassword || confirmPassword) {
+        if (!currentPassword) {
+          e.preventDefault();
+          alert('Please enter your current password to change password.');
+          currentPasswordField.focus();
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          e.preventDefault();
+          alert('New passwords do not match!');
+          confirmPasswordField.focus();
+          return false;
+        }
+
+        if (newPassword.length < 8) {
+          e.preventDefault();
+          alert('New password must be at least 8 characters long!');
+          newPasswordField.focus();
+          return false;
+        }
+      }
+    });
+
+    // Contact number validation
+    const contactField = document.querySelector('input[name="username"]');
+    contactField.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value.length > 10) {
+        this.value = this.value.slice(0, 10);
+      }
+    });
+  });
+</script>
+
+{% include 'accounts/footer.html' %}

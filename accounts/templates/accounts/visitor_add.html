@@ -1,0 +1,280 @@
+{% include 'accounts/header.html' %}
+{% include 'accounts/topbar.html' %}
+{% include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1><i class="fas fa-handshake "></i> Add Client Visit</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'visitor_list' %}">My Visitors</a></li>
+            <li class="breadcrumb-item active">Add Visit</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-success">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-user-plus mr-1"></i> New Client / Visitor</h3>
+        </div>
+        <div class="card-body">
+
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+          </div>
+          {% endfor %}
+          {% endif %}
+
+          <!-- Employee Info Banner -->
+          <div class="callout callout-info mb-4">
+            <h6><i class="fas fa-user-tie mr-1"></i> Added by:
+              <strong>
+                {% if own_emp %}{{ own_emp.full_name }}{% else %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}
+              </strong>
+            </h6>
+            <small class="text-muted">This record will be tagged to your account automatically.</small>
+          </div>
+
+          <form method="POST" id="visitorForm">
+            {% csrf_token %}
+
+            <div class="row">
+              <!-- Client Name -->
+              <div class="col-md-6 form-group">
+                <label>Client Name <span class="text-danger">*</span></label>
+                <input type="text" name="client_name" class="form-control"
+                       placeholder="Enter client / customer name" required maxlength="255" />
+              </div>
+
+              <!-- Phone Number -->
+              <div class="col-md-6 form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" class="form-control"
+                       placeholder="e.g. 9876543210" maxlength="20" />
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Location / Place -->
+              <div class="col-md-6 form-group">
+                <label>Location / Place of Meeting</label>
+                <input type="text" name="location" class="form-control"
+                       placeholder="e.g. Kavi Nagar, Ghaziabad" maxlength="500" />
+              </div>
+
+              <!-- Visit Date -->
+              <div class="col-md-6 form-group">
+                <label>Visit Date <span class="text-danger">*</span></label>
+                <input type="date" name="visit_date" class="form-control"
+                       value="{{ today }}" max="{{ today }}" required />
+                <small class="form-text text-muted">Defaults to today. Cannot be a future date.</small>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Notes -->
+              <div class="col-md-12 form-group">
+                <label>Notes / Description</label>
+                <textarea name="notes" class="form-control" rows="4"
+                          placeholder="Enter any notes about the meeting, products discussed, follow-up needed, etc."></textarea>
+              </div>
+            </div>
+
+            <!-- ===== CLIENT PHOTO CAPTURE SECTION ===== -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card card-outline card-info">
+                  <div class="card-header">
+                    <h5 class="card-title mb-0">
+                      <i class="fas fa-camera mr-1 text-info"></i> Client Photo
+                      <small class="text-muted ml-2">(Optional)</small>
+                    </h5>
+                  </div>
+                  <div class="card-body">
+
+                    <!-- Open / Switch camera buttons -->
+                    <div id="cameraControls" class="mb-3">
+                      <button type="button" id="btnOpenCamera" class="btn btn-info btn-sm">
+                        <i class="fas fa-video"></i> Capture Client Photo
+                      </button>
+                      <button type="button" id="btnSwitchCamera" class="btn btn-secondary btn-sm ml-2"
+                              style="display:none;">
+                        <i class="fas fa-sync-alt"></i> Switch Camera
+                      </button>
+                    </div>
+
+                    <!-- Live video preview -->
+                    <div id="cameraSection" style="display:none;" class="mb-3">
+                      <div class="d-flex flex-column align-items-start">
+                        <video id="videoPreview" autoplay playsinline muted
+                               style="width:100%;max-width:400px;border:2px solid #17a2b8;border-radius:10px;background:#000;"></video>
+                        <div class="mt-2">
+                          <button type="button" id="btnTakePhoto" class="btn btn-success btn-sm">
+                            <i class="fas fa-camera"></i> Take Photo
+                          </button>
+                          <button type="button" id="btnCancelCamera" class="btn btn-secondary btn-sm ml-2">
+                            <i class="fas fa-times"></i> Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Hidden canvas used to capture frame -->
+                    <canvas id="photoCanvas" style="display:none;"></canvas>
+
+                    <!-- Captured photo preview -->
+                    <div id="photoPreviewSection" style="display:none;" class="mb-2">
+                      <p class="text-success mb-1"><i class="fas fa-check-circle"></i> Photo captured!</p>
+                      <img id="capturedPhotoImg" src="" alt="Captured Photo"
+                           style="width:180px;height:180px;object-fit:cover;border:3px solid #28a745;border-radius:10px;" />
+                      <br/>
+                      <button type="button" id="btnRetakePhoto" class="btn btn-warning btn-sm mt-2">
+                        <i class="fas fa-redo"></i> Retake Photo
+                      </button>
+                    </div>
+
+                    <!-- Hidden field carries base64 image to the server -->
+                    <input type="hidden" name="photo_data" id="photoData" />
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ===== END PHOTO SECTION ===== -->
+
+            <div class="card-footer border-top border-success mt-2">
+              <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-flat bg-gradient-success mx-2">
+                  <i class="fas fa-save"></i> Save Visit
+                </button>
+                <a href="{% url 'visitor_list' %}" class="btn btn-flat bg-gradient-secondary mx-2">
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}
+
+<script>
+(function () {
+  "use strict";
+
+  let stream = null;
+  let facingMode = "environment"; // default: rear camera (better for field use)
+
+  const video          = document.getElementById("videoPreview");
+  const canvas         = document.getElementById("photoCanvas");
+  const capturedImg    = document.getElementById("capturedPhotoImg");
+  const photoDataInput = document.getElementById("photoData");
+  const cameraSection  = document.getElementById("cameraSection");
+  const previewSection = document.getElementById("photoPreviewSection");
+  const btnOpen        = document.getElementById("btnOpenCamera");
+  const btnSwitch      = document.getElementById("btnSwitchCamera");
+  const btnTake        = document.getElementById("btnTakePhoto");
+  const btnCancel      = document.getElementById("btnCancelCamera");
+  const btnRetake      = document.getElementById("btnRetakePhoto");
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(function (t) { t.stop(); });
+      stream = null;
+    }
+    video.srcObject = null;
+  }
+
+  function startCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Camera is not supported in this browser. Please use Chrome, Firefox, or Safari on a modern device.");
+      return;
+    }
+    stopCamera();
+
+    var constraints = {
+      video: { facingMode: { ideal: facingMode }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(function (s) {
+        stream = s;
+        video.srcObject = stream;
+        cameraSection.style.display = "block";
+        btnSwitch.style.display = "inline-block";
+        previewSection.style.display = "none";
+        photoDataInput.value = "";
+      })
+      .catch(function (err) {
+        if (err.name === "NotAllowedError") {
+          alert("Camera permission was denied. Please allow camera access in your browser settings.");
+        } else if (err.name === "NotFoundError") {
+          alert("No camera found on this device.");
+        } else {
+          alert("Could not start camera: " + err.message);
+        }
+      });
+  }
+
+  btnOpen.addEventListener("click", function () {
+    startCamera();
+  });
+
+  btnSwitch.addEventListener("click", function () {
+    facingMode = (facingMode === "environment") ? "user" : "environment";
+    startCamera();
+  });
+
+  btnTake.addEventListener("click", function () {
+    if (!stream) return;
+    var w = video.videoWidth  || 640;
+    var h = video.videoHeight || 480;
+    canvas.width  = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+    var dataURL = canvas.toDataURL("image/jpeg", 0.85);
+    photoDataInput.value = dataURL;
+    capturedImg.src = dataURL;
+
+    stopCamera();
+    cameraSection.style.display  = "none";
+    btnSwitch.style.display      = "none";
+    previewSection.style.display = "block";
+    btnOpen.innerHTML = '<i class="fas fa-video"></i> Recapture Photo';
+  });
+
+  btnCancel.addEventListener("click", function () {
+    stopCamera();
+    cameraSection.style.display = "none";
+    btnSwitch.style.display     = "none";
+  });
+
+  btnRetake.addEventListener("click", function () {
+    photoDataInput.value         = "";
+    previewSection.style.display = "none";
+    facingMode = "environment";
+    startCamera();
+  });
+
+  // Clean up camera stream when navigating away
+  window.addEventListener("beforeunload", stopCamera);
+  window.addEventListener("pagehide",     stopCamera);
+}());
+</script>
+

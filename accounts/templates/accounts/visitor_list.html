@@ -1,0 +1,132 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>{% if is_admin %}All Visitor Records{% else %}My Visitors{% endif %}</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <div class="card-tools">
+                <a href="{% url 'visitor_add' %}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-plus"></i> Add New
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+
+              <!-- Filter Row -->
+              <form method="GET" action="" class="mb-3">
+                <div class="row align-items-end">
+                  {% if is_admin %}
+                  <div class="col-sm-3">
+                    <label class="form-label mb-1"><strong>Filter by Employee</strong></label>
+                    <select name="emp_filter" class="form-control form-control-sm">
+                      <option value="">-- All Employees --</option>
+                      {% for emp in emp_choices %}
+                      <option value="{{ emp }}" {% if emp_filter == emp %}selected{% endif %}>{{ emp }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  {% endif %}
+                  <div class="col-sm-3">
+                    <label class="form-label mb-1"><strong>Search</strong></label>
+                    <input type="text" name="q" class="form-control form-control-sm"
+                           placeholder="Client name or phone…"
+                           value="{{ search }}" />
+                  </div>
+                  <div class="col-sm-3 d-flex gap-2 mt-2 mt-sm-0">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                      <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="{% url 'visitor_list' %}" class="btn btn-sm btn-secondary">
+                      <i class="fas fa-redo"></i> Reset
+                    </a>
+                  </div>
+                </div>
+              </form>
+
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <th class="text-center">SI NO</th>
+                      <th>Client Name</th>
+                      {% if is_admin %}<th>Added By</th>{% endif %}
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th class="text-center">Visit Date</th>
+                      <th>Notes</th>
+                      <th class="text-center">Photo</th>
+                      <th class="text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for v in visitors %}
+                    <tr>
+                      <td class="text-center">{{ forloop.counter }}</td>
+                      <td>{{ v.client_name }}</td>
+                      {% if is_admin %}
+                      <td>{{ v.emp_name|default:v.user.username }}</td>
+                      {% endif %}
+                      <td>{{ v.phone|default:"-" }}</td>
+                      <td>{{ v.location|default:"-" }}</td>
+                      <td class="text-center">{{ v.visit_date }}</td>
+                      <td>{{ v.notes|default:"-"|truncatechars:60 }}</td>
+                      <td class="text-center">
+                        {% if v.photo %}
+                        <a href="{{ v.photo.url }}" target="_blank" title="View full photo">
+                          <img src="{{ v.photo.url }}" alt="Client Photo"
+                               style="width:50px;height:50px;object-fit:cover;border-radius:6px;border:1px solid #28a745;" />
+                        </a>
+                        {% else %}
+                        <span class="text-muted"><i class="fas fa-image"></i></span>
+                        {% endif %}
+                      </td>
+                      <td class="text-center">
+                        <div class="btn-group">
+                          <a href="{% url 'visitor_view' v.id %}" class="btn btn-sm btn-info" title="View">
+                            <i class="fas fa-eye"></i> View
+                          </a>
+                          <a href="{% url 'visitor_edit' v.id %}" class="btn btn-sm btn-primary" title="Edit">
+                            <i class="fas fa-edit"></i>
+                          </a>
+                          <a href="{% url 'visitor_delete' v.id %}"
+                             class="btn btn-sm btn-danger" title="Delete"
+                             onclick="return confirm('Delete visitor record for &quot;{{ v.client_name }}&quot;?');">
+                            <i class="fas fa-trash"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="{% if is_admin %}9{% else %}8{% endif %}" class="text-center">
+                        No visitor records found
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

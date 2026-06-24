@@ -1,0 +1,207 @@
+{% load static %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <h4 class="mb-2">Dashboard</h4>
+
+      {% if not user_approved and not request.user.is_staff and not request.user.is_superuser %}
+      <div class="alert alert-warning alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-exclamation-triangle"></i> Account Pending Approval!</h5>
+        Your registration is pending admin approval. Full access will be available after approval.
+      </div>
+      {% endif %}
+
+      {% if is_admin_dashboard and pending_registrations %}
+      <div class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <i class="icon fas fa-user-clock"></i>
+        <strong>{{ pending_registrations }}</strong> registration request(s) pending approval.
+        <a href="{% url 'reg_user_list' %}" class="alert-link">Review now &rarr;</a>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+
+        {% if is_admin_dashboard %}
+        <!-- ===== ADMIN DASHBOARD CARDS ===== -->
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="info-box">
+            <span class="info-box-icon bg-info elevation-1">
+              <i class="fas fa-users"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>TOTAL EMPLOYEES</b></span>
+              <span class="info-box-number"><h3><b>{{ total_employees|default:"0" }}</b></h3></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="info-box">
+            <span class="info-box-icon bg-success elevation-1">
+              <i class="fas fa-clipboard-check"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>TODAY'S ATTENDANCE</b></span>
+              <span class="info-box-number"><h3><b>{{ today_attendance|default:"0" }}</b></h3></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="info-box">
+            <span class="info-box-icon bg-warning elevation-1">
+              <i class="fas fa-calendar-times"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>PENDING LEAVES</b></span>
+              <span class="info-box-number"><h3><b>{{ pending_leaves|default:"0" }}</b></h3></span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="info-box">
+            <span class="info-box-icon bg-danger elevation-1">
+              <i class="fas fa-user-clock"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>PENDING APPROVALS</b></span>
+              <span class="info-box-number"><h3><b>{{ pending_registrations|default:"0" }}</b></h3></span>
+            </div>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- ===== EMPLOYEE DASHBOARD CARDS ===== -->
+        <div class="col-6 col-lg-3">
+          <div class="info-box mb-3">
+            <span class="info-box-icon bg-primary elevation-1">
+              <i class="fas fa-clock"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>LIVE TIMER</b></span>
+              <span class="info-box-number">
+                <h4 class="mb-0"><b id="liveDashboardClock">--:--:--</b></h4>
+              </span>
+              <small id="workTimerLabel" class="text-muted">
+                {% if today_attendance_record and today_attendance_record.check_in and not today_attendance_record.check_out %}
+                Working: <span id="workElapsed">00:00:00</span>
+                {% else %}
+                {{ today }}
+                {% endif %}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="info-box mb-3">
+            <span class="info-box-icon bg-danger elevation-1">
+              <i class="fas fa-user-clock"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>TOTAL LATE</b></span>
+              <span class="info-box-number"><h3 class="mb-0"><b>{{ total_late|default:"0" }}</b></h3></span>
+              <small class="text-muted">This month</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="info-box mb-3">
+            <span class="info-box-icon bg-success elevation-1">
+              <i class="fas fa-clipboard-check"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>MY ATTENDANCE</b></span>
+              <span class="info-box-number"><h3 class="mb-0"><b>{{ my_attendance_month|default:"0" }}</b></h3></span>
+              <small class="text-muted">1 month ({{ month_name }})</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="info-box mb-3">
+            <span class="info-box-icon bg-warning elevation-1">
+              <i class="fas fa-calendar-alt"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text"><b>TOTAL LEAVE</b></span>
+              <span class="info-box-number"><h3 class="mb-0"><b>{{ total_leave|default:"0" }}</b></h3></span>
+              <small class="text-muted">All requests</small>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+
+      {% if upcoming_holidays %}
+      <div class="row">
+        <div class="col-12 col-lg-6">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-calendar-alt mr-1"></i> Upcoming Holidays</h3>
+            </div>
+            <div class="card-body p-0">
+              <table class="table table-sm table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Holiday</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for h in upcoming_holidays %}
+                  <tr>
+                    <td>{{ h.holiday_tital }}</td>
+                    <td>{{ h.holiday_date }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </section>
+</div>
+
+{% if not is_admin_dashboard %}
+<script>
+  (function () {
+    var checkInIso = "{{ check_in_iso|default:'' }}";
+    var clockEl = document.getElementById("liveDashboardClock");
+    var workEl = document.getElementById("workElapsed");
+
+    function pad(n) {
+      return n < 10 ? "0" + n : n;
+    }
+
+    function tick() {
+      var now = new Date();
+      if (clockEl) {
+        clockEl.textContent = now.toLocaleTimeString();
+      }
+      if (workEl && checkInIso) {
+        var start = new Date(checkInIso);
+        var diff = Math.max(0, Math.floor((now - start) / 1000));
+        var h = Math.floor(diff / 3600);
+        var m = Math.floor((diff % 3600) / 60);
+        var s = diff % 60;
+        workEl.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
+      }
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+{% endif %}

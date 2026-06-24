@@ -1,0 +1,79 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Holiday List</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <div class="card-tools">
+                {% if not is_restricted_user %}
+                <a
+                  href="{% url 'holiday_add' %}"
+                  class="btn btn-sm btn-primary"
+                >
+                  <i class="fas fa-plus"></i> Add Holiday
+                </a>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead class="text-center">
+                    <tr>
+                      <th style="width: 10%">SI NO</th>
+                      <th>Holiday Title</th>
+                      <th>Date</th>
+                      {% if not is_restricted_user %}
+                      <th style="width: 15%">Action</th>
+                      {% endif %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for holiday in holidays %}
+                    <tr>
+                      <td class="text-center">{{ forloop.counter }}</td>
+                      <td>{{ holiday.holiday_tital }}</td>
+                      <td class="text-center">{{ holiday.holiday_date }}</td>
+                      {% if not is_restricted_user %}
+                      <td class="text-center">
+                        <a
+                          href="{% url 'holiday_delete' holiday.id %}"
+                          class="btn btn-sm btn-danger"
+                          onclick="return confirm('Are you sure?');"
+                        >
+                          <i class="fas fa-trash"></i>
+                        </a>
+                      </td>
+                      {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="{% if not is_restricted_user %}4{% else %}3{% endif %}" class="text-center">No holidays found</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

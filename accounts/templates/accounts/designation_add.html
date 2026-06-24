@@ -1,0 +1,91 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %} 
+{%include 'accounts/sidebar.html' %}
+
+<style>
+  .card-footer {
+    background-color: #ffff !important;
+  }
+</style>
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="content-header">
+      <section class="content">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div id="msg" class=""></div>
+
+                  <h3 class="text-primary">Add Designation</h3>
+                  <br />
+
+                  <form method="POST" action="">
+                    {% csrf_token %}
+
+                    <!-- Department Dropdown -->
+                    <div class="row">
+                      <div class="col-sm-4 form-group">
+                        <label class="control-label">
+                          Department Name <span style="color: red">*</span>
+                        </label>
+                        <select
+                          name="department_name"
+                          class="form-control"
+                          required
+                        >
+                          <option value="">-- Select Department --</option>
+                          {% for dept in departments %}
+                          <option value="{{ dept.dept_name }}">
+                            {{ dept.dept_name }}
+                          </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Designation Name -->
+                    <div class="row">
+                      <div class="col-sm-4 form-group">
+                        <label class="control-label">Designation Name</label>
+                        <input
+                          type="text"
+                          name="designation_name"
+                          class="form-control"
+                          value=""
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="card-footer border-top border-info">
+                      <div
+                        class="d-flex w-100 justify-content-center align-items-center"
+                      >
+                        <button
+                          class="btn btn-flat bg-gradient-primary mx-2"
+                          type="submit"
+                        >
+                          Save
+                        </button>
+                        <a
+                          class="btn btn-flat bg-gradient-secondary mx-2"
+                          href="{% url 'designation_list' %}"
+                        >
+                          Cancel
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{% include 'accounts/footer.html' %}

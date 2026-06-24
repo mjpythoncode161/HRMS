@@ -1,0 +1,145 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <h3 class="text-primary">Add Attendance Request</h3>
+          <hr />
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <!-- Row 1 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Employee Name *</label>
+                {% if is_restricted_user %}
+                <input
+                  type="text"
+                  class="form-control"
+                  value="{{ own_emp.full_name }}"
+                  readonly
+                />
+                <input
+                  type="hidden"
+                  name="emp_id"
+                  value="{{ own_emp.emp_id }}"
+                />
+                {% else %}
+                <select
+                  name="emp_id"
+                  class="form-control"
+                  required
+                  id="employee_select"
+                >
+                  <option value="">-- Select Employee --</option>
+                  {% for emp in employees %}
+                  <option
+                    value="{{ emp.emp_id }}"
+                    data-name="{{ emp.full_name }}"
+                  >
+                    {{ emp.full_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Request Date *</label>
+                <input
+                  type="date"
+                  name="reg_date"
+                  class="form-control"
+                  required
+                  value="{{ today }}"
+                />
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Check-In Time *</label>
+                <input
+                  type="time"
+                  name="check_in"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Check-Out Time *</label>
+                <input
+                  type="time"
+                  name="check_out"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="row">
+              <div class="col-md-12 form-group">
+                <label>Reason *</label>
+                <textarea
+                  name="reason"
+                  class="form-control"
+                  rows="3"
+                  required
+                  placeholder="Enter reason for attendance request"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Attachment (Optional)</label>
+                <input
+                  type="text"
+                  name="attachment"
+                  class="form-control"
+                  placeholder="Attachment path or URL"
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Status</label>
+                <select name="status" class="form-control">
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="card-footer border-top border-info mt-3">
+              <div
+                class="d-flex w-100 justify-content-center align-items-center"
+              >
+                <button
+                  class="btn btn-flat bg-gradient-primary mx-2"
+                  type="submit"
+                >
+                  <i class="fas fa-save"></i> Submit Request
+                </button>
+                <a
+                  class="btn btn-flat bg-gradient-secondary mx-2"
+                  href="{% url 'attendance_req_list' %}"
+                >
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

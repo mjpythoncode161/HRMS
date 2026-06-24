@@ -1,0 +1,103 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Registration Requests</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active">Registration Requests</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">All Registration Requests</h3>
+            </div>
+            <div class="card-body">
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>DOB</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for request in reg_requests %}
+                  <tr>
+                    <td>{{ request.id }}</td>
+                    <td>{{ request.full_name }}</td>
+                    <td>{{ request.email }}</td>
+                    <td>{{ request.contact }}</td>
+                    <td>{{ request.dob|default:"-" }}</td>
+                    <td>{{ request.gender|default:"-" }}</td>
+                    <td>
+                      {% if request.status == 'PENDING' %}
+                        <span class="badge badge-warning">{{ request.status }}</span>
+                      {% elif request.status == 'APPROVED' %}
+                        <span class="badge badge-success">{{ request.status }}</span>
+                      {% elif request.status == 'REJECTED' %}
+                        <span class="badge badge-danger">{{ request.status }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ request.created_at|date:"M d, Y H:i" }}</td>
+                    <td>
+                      {% if request.status == 'PENDING' %}
+                        <a href="{% url 'employee_add' %}?reg_id={{ request.id }}" 
+                           class="btn btn-success btn-sm">
+                          <i class="fas fa-check"></i> Approve
+                        </a>
+                        <a href="{% url 'reg_user_reject' request.id %}" 
+                           class="btn btn-danger btn-sm" 
+                           onclick="return confirm('Are you sure you want to reject this registration?')">
+                          <i class="fas fa-times"></i> Reject
+                        </a>
+                      {% else %}
+                        <span class="text-muted">{{ request.status }}</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="9" class="text-center">No registration requests found.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

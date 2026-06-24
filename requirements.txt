@@ -1,0 +1,12 @@
+
+# ── Core Framework ─────────────────────────────────────────────────────────────
+Django==4.2.27
+
+# ── API Framework ─────────────────────────────────────────────────────────────
+djangorestframework==3.15.2
+
+# ── CORS (for mobile/web API calls) ───────────────────────────────────────────
+django-cors-headers==4.7.0
+
+# ── Image Processing (required for ImageField) ─────────────────────────────────
+Pillow==11.3.0

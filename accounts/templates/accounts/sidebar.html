@@ -1,0 +1,376 @@
+{% load static %}
+
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <!-- Brand Logo -->
+  <a href="{% url 'home' %}" class="brand-link text-left">
+    {% if company_logo_url %}
+    <img src="{{ company_logo_url }}" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8; max-height: 33px;" />
+    {% endif %}
+    <span class="brand-text font-weight-light px-2"><b>{{ system_name }}</b></span>
+  </a>
+
+  <div class="sidebar">
+    <!-- Menu -->
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
+        <!-- Dashboard — visible to all authenticated users -->
+        <li class="nav-item">
+          <a href="{% url 'home' %}" class="nav-link">
+            <i class="nav-icon fas fa-tachometer-alt text-danger"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+        <!-- ======== ADMIN / STAFF FULL SIDEBAR ======== -->
+
+        <!-- Employees -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-users"></i>
+            <p>Employees<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'employee_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Employee List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'department_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Department List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'designation_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Designation List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'reg_user_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Registration Requests</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Attendance -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-check-square"></i>
+            <p>Attendance<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'attendance_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Attendance List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'attendance_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Add Attendance</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Leaves -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-paper-plane"></i>
+            <p>Leaves<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'leave_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Leave List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'leave_approval_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Approve Leaves</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Holiday Management -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-calendar-alt"></i>
+            <p>Holiday Management<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'holiday_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Holiday List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'holiday_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Add Holiday</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Payslip -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-money-bill-wave"></i>
+            <p>Payslip<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'payslip_generate' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Generate Payslip</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Reports -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-line"></i>
+            <p>Reports<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'attendance_report' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Attendance Report</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Visitor / Client Management (Admin) -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-handshake "></i>
+            <p>Visitor Management<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'visitor_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>All Visitor Records</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'visitor_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Add Visit Record</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Users -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-user-cog"></i>
+            <p>Users<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'user_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>User List</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'user_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Add User</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Settings -->
+        <li class="nav-item">
+          <a href="{% url 'company_settings' %}" class="nav-link">
+            <i class="nav-icon fas fa-cog"></i>
+            <p>Settings</p>
+          </a>
+        </li>
+
+        {% elif user_is_employee %}
+        <!-- ======== EMPLOYEE SIDEBAR ======== -->
+
+        <!-- Check In (top level) -->
+        <li class="nav-item">
+          <a href="{% url 'employee_checkin' %}" class="nav-link">
+            <i class="nav-icon fas fa-sign-in-alt text-success"></i>
+            <p>Check In</p>
+          </a>
+        </li>
+
+        <!-- Check Out (top level) -->
+        <li class="nav-item">
+          <a href="{% url 'employee_checkout' %}" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt text-warning"></i>
+            <p>Check Out</p>
+          </a>
+        </li>
+
+        <!-- Attendance -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon far fa-check-square"></i>
+            <p>Attendance<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'attendance_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>My Attendance</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Leaves (Employee) -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-paper-plane"></i>
+            <p>Leaves<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'leave_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Leave Apply</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'leave_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>My Leaves</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Holiday Management -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-calendar-alt"></i>
+            <p>Holiday Management<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'holiday_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Holiday List</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Visitor Form (Employee) -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-handshake "></i>
+            <p>Visitor Form<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'visitor_add' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Add Client Visit</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'visitor_list' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>My Visitors</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Reports -->
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-line"></i>
+            <p>Reports<i class="right fas fa-angle-left"></i></p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{% url 'attendance_report' %}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i><p>Attendance Report</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        {% endif %}
+        <!-- end role-based sidebar -->
+
+      </ul>
+    </nav>
+  </div>
+  <!-- /.sidebar -->
+</aside>
+
+
+
+<!-- Accordion Sidebar Script -->
+<script>
+  $(function () {
+    var currentUrl = window.location.pathname;
+
+    // 1. Force all sections closed on load (clean slate)
+    $(".nav-sidebar .has-treeview")
+      .removeClass("menu-open")
+      .find(".nav-treeview")
+      .css("display", "none");
+
+    // 2. Highlight the active sub-link
+    $(".nav-sidebar .nav-treeview .nav-link").each(function () {
+      if ($(this).attr("href") === currentUrl) {
+        $(this).addClass("active");
+      }
+    });
+
+    // 3. Only open parent section if user clicked a sidebar link (not on F5 refresh)
+    var navigatedViaLink = sessionStorage.getItem("sidebarNav");
+    if (navigatedViaLink === "true") {
+      sessionStorage.removeItem("sidebarNav");
+      // Open the current page's parent section
+      $(".nav-sidebar .nav-treeview .nav-link.active").each(function () {
+        var $parentSection = $(this).closest(".has-treeview");
+        $parentSection.addClass("menu-open");
+        $parentSection.children(".nav-treeview").css("display", "block");
+      });
+    }
+
+    // 4. Dashboard active state
+    if (currentUrl === "/home/" || currentUrl === "/") {
+      $(".nav-sidebar > li:first-child > .nav-link").addClass("active");
+    }
+
+    // Settings active state
+    if (currentUrl === "/company_settings/") {
+      $(".nav-sidebar a[href='/company_settings/']").addClass("active");
+    }
+
+    // 5. Set flag when any sidebar sub-link is clicked
+    $(".nav-sidebar .nav-treeview .nav-link").on("click", function () {
+      sessionStorage.setItem("sidebarNav", "true");
+    });
+
+    // 6. Accordion toggle — arrow click opens/closes sections
+    $(".nav-sidebar .has-treeview > .nav-link").on("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      var $clicked = $(this).parent();
+
+      if ($clicked.hasClass("menu-open")) {
+        $clicked.removeClass("menu-open");
+        $clicked.children(".nav-treeview").slideUp(200);
+      } else {
+        // Close all other sections first (accordion)
+        $(".nav-sidebar .has-treeview.menu-open").each(function () {
+          $(this).removeClass("menu-open");
+          $(this).children(".nav-treeview").slideUp(200);
+        });
+        $clicked.addClass("menu-open");
+        $clicked.children(".nav-treeview").slideDown(200);
+      }
+    });
+  });
+</script>

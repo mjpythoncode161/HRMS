@@ -1,0 +1,3 @@
+legacy_id,full_name,email,contact,action,django_username
+1,admin,admin@admin.com,9845332614,created,9845332614
+5,abc,abc@gmail.com,1234567890,created,1234567890_1

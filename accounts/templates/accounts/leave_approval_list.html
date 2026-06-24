@@ -1,0 +1,201 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %} 
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Leave Approval</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="leaveTable" class="table table-bordered table-hover">
+                  <thead class="text-center">
+                    <tr>
+                      <th>SI No.</th>
+                      <th>Employee Name</th>
+                      <th>Leave Type</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                      <td class="text-center">{{ forloop.counter }}</td>
+                      <td>{{ leave.full_name }}</td>
+                      <td>{{ leave.leave_type }}</td>
+                      <td class="text-center">
+                        {% if leave.leave_status == 1 %}
+                        <span
+                          class="badge badge-success"
+                          style="padding: 8px 15px"
+                          >Approved</span
+                        >
+                        {% elif leave.leave_status == 2 %}
+                        <span
+                          class="badge badge-danger"
+                          style="padding: 8px 15px"
+                          >Rejected</span
+                        >
+                        {% else %}
+                        <span
+                          class="badge badge-warning"
+                          style="padding: 8px 15px"
+                          >Pending</span
+                        >
+                        {% endif %}
+                      </td>
+                      <td class="text-center">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-info"
+                          data-toggle="modal"
+                          data-target="#statusModal{{ leave.id }}"
+                        >
+                          Status Update
+                        </button>
+                      </td>
+                    </tr>
+
+                    <!-- Status Update Modal -->
+                    <div
+                      class="modal fade"
+                      id="statusModal{{ leave.id }}"
+                      tabindex="-1"
+                      role="dialog"
+                    >
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header bg-info">
+                            <h5 class="modal-title text-white">
+                              Update Leave Status
+                            </h5>
+                            <button
+                              type="button"
+                              class="close text-white"
+                              data-dismiss="modal"
+                            >
+                              <span>&times;</span>
+                            </button>
+                          </div>
+                          <form
+                            method="POST"
+                            action="{% url 'leave_status_update' leave.id %}"
+                          >
+                            {% csrf_token %}
+                            <div class="modal-body">
+                              <div class="form-group">
+                                <label><strong>Employee:</strong></label>
+                                <p>{{ leave.full_name }}</p>
+                              </div>
+                              <div class="form-group">
+                                <label><strong>Leave Type:</strong></label>
+                                <p>{{ leave.leave_type }}</p>
+                              </div>
+                              <div class="form-group">
+                                <label><strong>Duration:</strong></label>
+                                <p>
+                                  {{ leave.start_date }} to {{ leave.end_date }}
+                                </p>
+                              </div>
+                              <div class="form-group">
+                                <label><strong>Reason:</strong></label>
+                                <p>{{ leave.reason|default:"-" }}</p>
+                              </div>
+                              <div class="form-group">
+                                <label for="status"
+                                  ><strong>Status *</strong></label
+                                >
+                                <select
+                                  name="status"
+                                  class="form-control"
+                                  required
+                                >
+                                  <option
+                                    value="0"
+                                    {%
+                                    if
+                                    leave.leave_status=""
+                                    ="0"
+                                    or
+                                    leave.leave_status=""
+                                    ="None"
+                                    %}selected{%
+                                    endif
+                                    %}
+                                  >
+                                    Pending
+                                  </option>
+                                  <option
+                                    value="1"
+                                    {%
+                                    if
+                                    leave.leave_status=""
+                                    ="1"
+                                    %}selected{%
+                                    endif
+                                    %}
+                                  >
+                                    Approved
+                                  </option>
+                                  <option
+                                    value="2"
+                                    {%
+                                    if
+                                    leave.leave_status=""
+                                    ="2"
+                                    %}selected{%
+                                    endif
+                                    %}
+                                  >
+                                    Rejected
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                              >
+                                Cancel
+                              </button>
+                              <button type="submit" class="btn btn-info">
+                                Update Status
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center">
+                        No leave requests found
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

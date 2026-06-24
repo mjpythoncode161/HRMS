@@ -1,0 +1,567 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <h3 class="text-primary">Add Employee</h3>
+          <hr />
+
+          <form method="POST">
+            {% csrf_token %}
+            {% if reg_id %}<input type="hidden" name="reg_id" value="{{ reg_id }}">{% endif %}
+
+            <!-- Row 1 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Mobile No *</label>
+                <input
+                  type="text"
+                  name="mobile_no"
+                  id="mobile_no"
+                  class="form-control"
+                  value="{{ prefill.contact|default:'' }}"
+                  required
+                />
+                <small class="text-muted"
+                  >Enter mobile number to auto-fill registered user
+                  details</small
+                >
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  id="full_name"
+                  class="form-control"
+                  value="{{ prefill.full_name|default:'' }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  class="form-control"
+                  value="{{ prefill.email|default:'' }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Date of Birth *</label>
+                <input
+                  type="date"
+                  name="dob"
+                  id="dob"
+                  class="form-control"
+                  value="{% if prefill %}{{ prefill.dob|date:'Y-m-d' }}{% endif %}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Login Details (employee add only) -->
+            {% if not reg_id %}
+            <hr />
+            <h5 class="text-primary">Login Details</h5>
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Password *</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  class="form-control"
+                  placeholder="Set login password"
+                  minlength="6"
+                  required
+                />
+                <small class="text-muted"
+                  >Employee will use email or mobile number to log in</small
+                >
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Confirm Password *</label>
+                <input
+                  type="password"
+                  name="confirm_password"
+                  id="confirm_password"
+                  class="form-control"
+                  placeholder="Re-enter password"
+                  minlength="6"
+                  required
+                />
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Row 3 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Gender *</label>
+                <select name="gender" id="gender" class="form-control" required>
+                  <option value="">Select Gender</option>
+                  <option value="Male" {% if prefill.gender == 'Male' %}selected{% endif %}>Male</option>
+                  <option value="Female" {% if prefill.gender == 'Female' %}selected{% endif %}>Female</option>
+                  <option value="Other" {% if prefill.gender == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Present Address *</label>
+                <input
+                  type="text"
+                  name="present_address"
+                  id="present_address"
+                  class="form-control"
+                  value="{{ prefill.address|default:'' }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Permanent Address *</label>
+                <input
+                  type="text"
+                  name="permanent_address"
+                  id="permanent_address"
+                  class="form-control"
+                  value="{{ prefill.address|default:'' }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Joining Date *</label>
+                <input
+                  type="date"
+                  name="joining_date"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 5 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Salary Amount *</label>
+                <input
+                  type="number"
+                  name="salary_amount"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 6 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Department *</label>
+                <select
+                  id="department_select"
+                  name="department_name"
+                  class="form-control"
+                  required
+                >
+                  <option value="">Select Department</option>
+                  {% for dept in departments %}
+                  <option value="{{ dept.dept_name }}">
+                    {{ dept.dept_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Designation *</label>
+                <select
+                  id="designation_select"
+                  name="designation_name"
+                  class="form-control"
+                  required
+                >
+                  <option value="">Select Designation</option>
+                  {% for des in designations %}
+                  <option
+                    value="{{ des.desig_name }}"
+                    data-dept="{{ des.dept_name }}"
+                  >
+                    {{ des.desig_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 7 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Check-in *</label>
+                <input
+                  type="time"
+                  name="check_in"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Check-out *</label>
+                <input
+                  type="time"
+                  name="check_out"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Bank Details Section -->
+            <hr />
+            <h5 class="text-primary">Bank Details</h5>
+
+            <!-- Row 8 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Bank Name</label>
+                <input
+                  type="text"
+                  name="bank_name"
+                  id="bank_name"
+                  class="form-control"
+                  placeholder="Enter Bank Name"
+                  value="{{ prefill.bank_name|default:'' }}"
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Branch Name</label>
+                <input
+                  type="text"
+                  name="branch_name"
+                  id="branch_name"
+                  class="form-control"
+                  placeholder="Enter Branch Name"
+                  value="{{ prefill.branch_name|default:'' }}"
+                />
+              </div>
+            </div>
+
+            <!-- Row 9 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Account Holder Name</label>
+                <input
+                  type="text"
+                  name="account_name"
+                  id="account_name"
+                  class="form-control"
+                  placeholder="Enter Account Holder Name"
+                  value="{{ prefill.account_name|default:'' }}"
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Account Number</label>
+                <input
+                  type="text"
+                  name="account_number"
+                  id="account_number"
+                  class="form-control"
+                  placeholder="Enter Account Number"
+                  value="{{ prefill.account_number|default:'' }}"
+                />
+              </div>
+            </div>
+
+            <!-- Row 10 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>IFSC Code</label>
+                <input
+                  type="text"
+                  name="ifsc_code"
+                  id="ifsc_code"
+                  class="form-control"
+                  placeholder="Enter IFSC Code"
+                  value="{{ prefill.ifsc_code|default:'' }}"
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Father's Name</label>
+                <input
+                  type="text"
+                  name="father_name"
+                  id="father_name"
+                  class="form-control"
+                  placeholder="Enter Father's Name"
+                  value="{{ prefill.father_name|default:'' }}"
+                />
+              </div>
+            </div>
+
+            <!-- Row 11 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Emergency Contact</label>
+                <input
+                  type="text"
+                  name="emergency_contact"
+                  id="emergency_contact"
+                  class="form-control"
+                  placeholder="Enter Emergency Contact"
+                  value="{{ prefill.emergency_contact|default:'' }}"
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Blood Group</label>
+                <input
+                  type="text"
+                  name="blood_group"
+                  id="blood_group"
+                  class="form-control"
+                  placeholder="Enter Blood Group"
+                  value="{{ prefill.blood_group|default:'' }}"
+                />
+              </div>
+            </div>
+
+            <!-- Additional Details Section -->
+            <hr />
+            <h5 class="text-primary">Additional Details</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered" id="additionalDetailsTable">
+                <thead class="bg-light">
+                  <tr>
+                    <th style="width: 28%">Name</th>
+                    <th style="width: 22%">Amount</th>
+                    <th style="width: 22%">Amount Type</th>
+                    <th style="width: 22%">Type</th>
+                    <th style="width: 6%">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                  <tr class="item-row">
+                    <td>
+                      <input
+                        type="text"
+                        name="item_name[]"
+                        class="form-control"
+                        placeholder="Enter Name"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name="item_amt[]"
+                        class="form-control"
+                        placeholder="Enter Amount"
+                        step="0.01"
+                      />
+                    </td>
+                    <td>
+                      <select name="item_amt_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Fixed">Fixed</option>
+                        <option value="Percentage">Percentage</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="item_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Earning">Earning</option>
+                        <option value="Deduction">Deduction</option>
+                      </select>
+                    </td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm remove-row"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-right mb-3">
+              <button type="button" class="btn btn-dark btn-sm" id="addItemBtn">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-white border-top">
+              <div class="text-center">
+                <button type="submit" class="btn bg-gradient-primary mx-2">
+                  Submit
+                </button>
+                <a
+                  href="{% url 'home' %}"
+                  class="btn bg-gradient-secondary mx-2"
+                >
+                  Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}
+
+<script>
+  // Filter designation options based on selected department
+  document.addEventListener("DOMContentLoaded", function () {
+    const deptSelect = document.getElementById("department_select");
+    const desSelect = document.getElementById("designation_select");
+
+    // Auto-fill functionality when mobile number is entered
+    const mobileInput = document.getElementById("mobile_no");
+    let debounceTimer;
+
+    mobileInput.addEventListener("input", function () {
+      clearTimeout(debounceTimer);
+      const mobile = this.value.trim();
+
+      if (mobile.length >= 10) {
+        debounceTimer = setTimeout(function () {
+          fetch("{% url 'get_employee_by_mobile' %}?mobile=" + mobile)
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.found) {
+                // Auto-fill the form fields
+                document.getElementById("full_name").value =
+                  data.full_name || "";
+                document.getElementById("email").value = data.email || "";
+                document.getElementById("dob").value = data.dob || "";
+                document.getElementById("gender").value = data.gender || "";
+                document.getElementById("present_address").value =
+                  data.address || "";
+                document.getElementById("permanent_address").value =
+                  data.address || "";
+
+                // Auto-fill bank details
+                document.getElementById("bank_name").value =
+                  data.bank_name || "";
+                document.getElementById("branch_name").value =
+                  data.branch_name || "";
+                document.getElementById("account_name").value =
+                  data.account_name || "";
+                document.getElementById("account_number").value =
+                  data.account_number || "";
+                document.getElementById("ifsc_code").value =
+                  data.ifsc_code || "";
+                document.getElementById("father_name").value =
+                  data.father_name || "";
+                document.getElementById("emergency_contact").value =
+                  data.emergency_contact || "";
+                document.getElementById("blood_group").value =
+                  data.blood_group || "";
+              }
+            })
+            .catch((error) => console.log("Error fetching data:", error));
+        }, 500); // Wait 500ms after user stops typing
+      }
+    });
+
+    function filterDesignations() {
+      const selectedDept = deptSelect.value;
+      const options = desSelect.querySelectorAll("option");
+
+      options.forEach(function (option) {
+        if (option.value === "") {
+          option.style.display = "";
+          return;
+        }
+
+        const optionDept = option.getAttribute("data-dept");
+        if (selectedDept === "" || optionDept === selectedDept) {
+          option.style.display = "";
+        } else {
+          option.style.display = "none";
+        }
+      });
+
+      // Reset designation selection when department changes
+      const currentSelected = desSelect.value;
+      const currentOption = desSelect.querySelector(
+        'option[value="' + currentSelected + '"]',
+      );
+      if (currentOption && currentOption.style.display === "none") {
+        desSelect.value = "";
+      }
+    }
+
+    deptSelect.addEventListener("change", filterDesignations);
+    filterDesignations();
+
+    // Additional Details
+    const addItemBtn = document.getElementById("addItemBtn");
+    const itemsTableBody = document.getElementById("itemsTableBody");
+
+    addItemBtn.addEventListener("click", function () {
+      const newRow = document.createElement("tr");
+      newRow.className = "item-row";
+      newRow.innerHTML = `
+        <td>
+          <input type="text" name="item_name[]" class="form-control" placeholder="Enter Name" />
+        </td>
+        <td>
+          <input type="number" name="item_amt[]" class="form-control" placeholder="Enter Amount" step="0.01" />
+        </td>
+        <td>
+          <select name="item_amt_type[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Fixed">Fixed</option>
+            <option value="Percentage">Percentage</option>
+          </select>
+        </td>
+        <td>
+          <select name="item_type[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Earning">Earning</option>
+            <option value="Deduction">Deduction</option>
+          </select>
+        </td>
+        <td class="text-center">
+          <button type="button" class="btn btn-danger btn-sm remove-row">
+            <i class="fas fa-times"></i>
+          </button>
+        </td>
+      `;
+      itemsTableBody.appendChild(newRow);
+    });
+
+    // Remove row functionality (using event delegation)
+    itemsTableBody.addEventListener("click", function (e) {
+      if (
+        e.target.classList.contains("remove-row") ||
+        e.target.closest(".remove-row")
+      ) {
+        const row = e.target.closest("tr");
+        if (itemsTableBody.querySelectorAll("tr").length > 1) {
+          row.remove();
+        } else {
+          // Clear the inputs instead of removing the last row
+          row.querySelectorAll("input").forEach((input) => (input.value = ""));
+          row
+            .querySelectorAll("select")
+            .forEach((select) => (select.value = ""));
+        }
+      }
+    });
+  });
+</script>

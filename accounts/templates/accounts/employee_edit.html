@@ -1,0 +1,527 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %} 
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <h3 class="text-primary">Edit Employee</h3>
+          <hr />
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <!-- Row 1 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Mobile No *</label>
+                <input
+                  type="text"
+                  name="mobile_no"
+                  class="form-control"
+                  value="{{ employee.contact }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  class="form-control"
+                  value="{{ employee.full_name }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="email"
+                  class="form-control"
+                  value="{{ employee.email }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Date of Birth *</label>
+                <input
+                  type="date"
+                  name="dob"
+                  class="form-control"
+                  value="{{ employee.dob|date:'Y-m-d' }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Gender *</label>
+                <select name="gender" class="form-control" required>
+                  <option value="">Select Gender</option>
+                  <option
+                    value="Male"
+                    {%
+                    if
+                    employee.gender=""
+                    ="Male"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Male
+                  </option>
+                  <option
+                    value="Female"
+                    {%
+                    if
+                    employee.gender=""
+                    ="Female"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Female
+                  </option>
+                  <option
+                    value="Other"
+                    {%
+                    if
+                    employee.gender=""
+                    ="Other"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Other
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Present Address *</label>
+                <input
+                  type="text"
+                  name="present_address"
+                  class="form-control"
+                  value="{{ employee.present_addr }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Permanent Address *</label>
+                <input
+                  type="text"
+                  name="permanent_address"
+                  class="form-control"
+                  value="{{ employee.perm_addr }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Joining Date *</label>
+                <input
+                  type="date"
+                  name="joining_date"
+                  class="form-control"
+                  value="{{ employee.join_date|date:'Y-m-d' }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 5 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Employee Type *</label>
+                <select name="employee_type" class="form-control" required>
+                  <option value="">Select Employee Type</option>
+                  <option
+                    value="Permanent"
+                    {%
+                    if
+                    employee.emp_type=""
+                    ="Permanent"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Permanent
+                  </option>
+                  <option
+                    value="Contract"
+                    {%
+                    if
+                    employee.emp_type=""
+                    ="Contract"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    Contract
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Salary Amount *</label>
+                <input
+                  type="number"
+                  name="salary_amount"
+                  class="form-control"
+                  value="{{ employee.salary_amt }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 6 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Department *</label>
+                <select
+                  id="department_select"
+                  name="department_name"
+                  class="form-control"
+                  required
+                >
+                  <option value="">Select Department</option>
+                  {% for dept in departments %}
+                  <option
+                    value="{{ dept.dept_name }}"
+                    {%
+                    if
+                    employee.dept=""
+                    ="dept.dept_name"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    {{ dept.dept_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Designation *</label>
+                <select
+                  id="designation_select"
+                  name="designation_name"
+                  class="form-control"
+                  required
+                >
+                  <option value="">Select Designation</option>
+                  {% for des in designations %}
+                  <option
+                    value="{{ des.desig_name }}"
+                    data-dept="{{ des.dept_name }}"
+                    {%
+                    if
+                    employee.desig=""
+                    ="des.desig_name"
+                    %}selected{%
+                    endif
+                    %}
+                  >
+                    {{ des.desig_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 7 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Check-in *</label>
+                <input
+                  type="time"
+                  name="check_in"
+                  class="form-control"
+                  value="{{ employee.check_in|time:'H:i' }}"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Check-out *</label>
+                <input
+                  type="time"
+                  name="check_out"
+                  class="form-control"
+                  value="{{ employee.check_out|time:'H:i' }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Additional Details Section -->
+            <hr />
+            <h5 class="text-primary">Additional Details</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered" id="additionalDetailsTable">
+                <thead class="bg-light">
+                  <tr>
+                    <th style="width: 28%">Name</th>
+                    <th style="width: 22%">Amount</th>
+                    <th style="width: 22%">Amount Type</th>
+                    <th style="width: 22%">Type</th>
+                    <th style="width: 6%">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                  {% for item in emp_items %}
+                  <tr class="item-row">
+                    <td>
+                      <input
+                        type="text"
+                        name="item_name[]"
+                        class="form-control"
+                        placeholder="Enter Name"
+                        value="{{ item.item_name }}"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name="item_amt[]"
+                        class="form-control"
+                        placeholder="Enter Amount"
+                        step="0.01"
+                        value="{{ item.item_amt }}"
+                      />
+                    </td>
+                    <td>
+                      <select name="item_amt_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option
+                          value="Fixed"
+                          {%
+                          if
+                          item.item_amt_type=""
+                          ="Fixed"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          Fixed
+                        </option>
+                        <option
+                          value="Percentage"
+                          {%
+                          if
+                          item.item_amt_type=""
+                          ="Percentage"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          Percentage
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="item_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option
+                          value="Earning"
+                          {%
+                          if
+                          item.item_type=""
+                          ="Earning"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          Earning
+                        </option>
+                        <option
+                          value="Deduction"
+                          {%
+                          if
+                          item.item_type=""
+                          ="Deduction"
+                          %}selected{%
+                          endif
+                          %}
+                        >
+                          Deduction
+                        </option>
+                      </select>
+                    </td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm remove-row"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr class="item-row">
+                    <td>
+                      <input
+                        type="text"
+                        name="item_name[]"
+                        class="form-control"
+                        placeholder="Enter Name"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name="item_amt[]"
+                        class="form-control"
+                        placeholder="Enter Amount"
+                        step="0.01"
+                      />
+                    </td>
+                    <td>
+                      <select name="item_amt_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Fixed">Fixed</option>
+                        <option value="Percentage">Percentage</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="item_type[]" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Earning">Earning</option>
+                        <option value="Deduction">Deduction</option>
+                      </select>
+                    </td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm remove-row"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="text-right mb-3">
+              <button type="button" class="btn btn-dark btn-sm" id="addItemBtn">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="card-footer bg-white border-top">
+              <div class="text-center">
+                <button type="submit" class="btn bg-gradient-primary mx-2">
+                  Update
+                </button>
+                <a
+                  href="{% url 'employee_list' %}"
+                  class="btn bg-gradient-secondary mx-2"
+                  >Cancel</a
+                >
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Filter designation options based on selected department
+    const deptSelect = document.getElementById("department_select");
+    const desSelect = document.getElementById("designation_select");
+
+    function filterDesignations() {
+      const selectedDept = deptSelect.value;
+      const options = desSelect.querySelectorAll("option");
+
+      options.forEach(function (option) {
+        if (option.value === "") {
+          option.style.display = "";
+          return;
+        }
+
+        const optionDept = option.getAttribute("data-dept");
+        if (selectedDept === "" || optionDept === selectedDept) {
+          option.style.display = "";
+        } else {
+          option.style.display = "none";
+        }
+      });
+    }
+
+    deptSelect.addEventListener("change", filterDesignations);
+    filterDesignations();
+
+    // Add Item functionality for Additional Details
+    const addItemBtn = document.getElementById("addItemBtn");
+    const itemsTableBody = document.getElementById("itemsTableBody");
+
+    addItemBtn.addEventListener("click", function () {
+      const newRow = document.createElement("tr");
+      newRow.className = "item-row";
+      newRow.innerHTML = `
+        <td>
+          <input type="text" name="item_name[]" class="form-control" placeholder="Enter Name" />
+        </td>
+        <td>
+          <input type="number" name="item_amt[]" class="form-control" placeholder="Enter Amount" step="0.01" />
+        </td>
+        <td>
+          <select name="item_amt_type[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Fixed">Fixed</option>
+            <option value="Percentage">Percentage</option>
+          </select>
+        </td>
+        <td>
+          <select name="item_type[]" class="form-control">
+            <option value="">Select</option>
+            <option value="Earning">Earning</option>
+            <option value="Deduction">Deduction</option>
+          </select>
+        </td>
+        <td class="text-center">
+          <button type="button" class="btn btn-danger btn-sm remove-row">
+            <i class="fas fa-times"></i>
+          </button>
+        </td>
+      `;
+      itemsTableBody.appendChild(newRow);
+    });
+
+    // Remove row functionality (using event delegation)
+    itemsTableBody.addEventListener("click", function (e) {
+      if (
+        e.target.classList.contains("remove-row") ||
+        e.target.closest(".remove-row")
+      ) {
+        const row = e.target.closest("tr");
+        if (itemsTableBody.querySelectorAll("tr").length > 1) {
+          row.remove();
+        } else {
+          // Clear the inputs instead of removing the last row
+          row.querySelectorAll("input").forEach((input) => (input.value = ""));
+          row
+            .querySelectorAll("select")
+            .forEach((select) => (select.value = ""));
+        }
+      }
+    });
+  });
+</script>

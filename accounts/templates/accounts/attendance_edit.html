@@ -1,0 +1,105 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-warning">
+        <div class="card-body">
+          <h3 class="text-warning">Add Check-Out Time</h3>
+          <hr />
+
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          {% endfor %}
+          {% endif %}
+
+          <!-- Read-only summary of the attendance record -->
+          <div class="card card-body bg-light mb-4">
+            <div class="row">
+              <div class="col-md-4">
+                <strong>Employee:</strong> {{ attendance.full_name }}
+              </div>
+              <div class="col-md-4">
+                <strong>Date:</strong> {{ attendance.att_date }}
+              </div>
+              <div class="col-md-4">
+                <strong>Check-In:</strong> {{ attendance.check_in }}
+              </div>
+            </div>
+          </div>
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Check-Out Time <span class="text-danger">*</span></label>
+                <input
+                  type="time"
+                  name="check_out"
+                  class="form-control"
+                  required
+                  id="check_out"
+                />
+                <small class="form-text text-muted">
+                  Check-out time must be after check-in time ({{ attendance.check_in }}).
+                </small>
+              </div>
+            </div>
+
+            <div class="card-footer border-top border-warning mt-3">
+              <div class="d-flex w-100 justify-content-center align-items-center">
+                <button class="btn btn-flat bg-gradient-warning mx-2" type="submit">
+                  <i class="fas fa-save"></i> Save Check-Out
+                </button>
+                <a class="btn btn-flat bg-gradient-secondary mx-2" href="{% url 'attendance_list' %}">
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Client-side: enforce check-out > check-in
+  document.querySelector("form").addEventListener("submit", function (e) {
+    var checkInStr = "{{ attendance.check_in|time:'H:i' }}";
+    var checkOutStr = document.getElementById("check_out").value;
+
+    if (checkInStr && checkOutStr) {
+      var checkInParts = checkInStr.split(":").map(Number);
+      var checkOutParts = checkOutStr.split(":").map(Number);
+      var checkInMinutes = checkInParts[0] * 60 + checkInParts[1];
+      var checkOutMinutes = checkOutParts[0] * 60 + checkOutParts[1];
+
+      if (checkOutMinutes <= checkInMinutes) {
+        e.preventDefault();
+        alert("Check-out time must be after check-in time (" + checkInStr + ").");
+        return;
+      }
+    }
+
+    // Stop persistent location tracking — employee has checked out
+    if (typeof HRMS_stopLocationTracking === 'function') {
+      HRMS_stopLocationTracking();
+    } else {
+      // Fallback: clear localStorage directly
+      localStorage.removeItem('HRMS_tracking_active');
+      localStorage.removeItem('HRMS_checkin_lat');
+      localStorage.removeItem('HRMS_checkin_lng');
+    }
+  });
+</script>
+
+{% include 'accounts/footer.html' %}

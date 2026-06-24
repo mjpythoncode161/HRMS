@@ -1,0 +1,318 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <!-- Content Header -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Employee Details</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item">
+              <a href="{% url 'employee_list' %}">Employee List</a>
+            </li>
+            <li class="breadcrumb-item active">View Details</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card card-outline card-info">
+            <!-- Card Header -->
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-user-circle"></i>
+                {{ employee.full_name|default:"Employee" }} Details
+              </h3>
+              <div class="card-tools">
+                <a
+                  href="{% url 'employee_list' %}"
+                  class="btn btn-sm btn-secondary"
+                >
+                  <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+              <div class="row">
+                <!-- Personal Information -->
+                <div class="col-md-6">
+                  <h5 class="text-primary">
+                    <i class="fas fa-user"></i> Personal Information
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Employee ID
+                        </th>
+                        <td>{{ employee.emp_id }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Full Name</th>
+                        <td>
+                          <strong>{{ employee.full_name|default:"-" }}</strong>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Father's Name</th>
+                        <td>{{ employee.father_name|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Date of Birth</th>
+                        <td>{{ employee.dob|date:"d-m-Y"|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Gender</th>
+                        <td>{{ employee.gender|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Blood Group</th>
+                        <td>{{ employee.blood_group|default:"-" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="col-md-6">
+                  <h5 class="text-success">
+                    <i class="fas fa-phone"></i> Contact Information
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Email
+                        </th>
+                        <td>{{ employee.email|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Mobile</th>
+                        <td>{{ employee.contact|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Emergency Contact
+                        </th>
+                        <td>{{ employee.emergency_contact|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Present Address
+                        </th>
+                        <td>{{ employee.present_addr|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Permanent Address
+                        </th>
+                        <td>{{ employee.perm_addr|default:"-" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <!-- Job Information -->
+                <div class="col-md-6">
+                  <h5 class="text-warning">
+                    <i class="fas fa-briefcase"></i> Job Information
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Department
+                        </th>
+                        <td>{{ employee.dept|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Designation</th>
+                        <td>{{ employee.desig|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Employee Type</th>
+                        <td>{{ employee.emp_type|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Join Date</th>
+                        <td>
+                          {{ employee.join_date|date:"d-m-Y"|default:"-" }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">End Date</th>
+                        <td>
+                          {{ employee.end_date|date:"d-m-Y"|default:"-" }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Salary & Banking -->
+                <div class="col-md-6">
+                  <h5 class="text-info">
+                    <i class="fas fa-money-bill-wave"></i> Salary & Banking
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Salary Type
+                        </th>
+                        <td>{{ employee.salary_type|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Salary Amount</th>
+                        <td>
+                          <strong
+                            >₹{{ employee.salary_amt|default:"-" }}</strong
+                          >
+                        </td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Bank Name</th>
+                        <td>{{ employee.bank_name|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Account Name</th>
+                        <td>{{ employee.account_name|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Account Number
+                        </th>
+                        <td>{{ employee.account_no|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">IFSC Code</th>
+                        <td>{{ employee.ifsc_code|default:"-" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <!-- Attendance & Leave -->
+                <div class="col-md-6">
+                  <h5 class="text-danger">
+                    <i class="fas fa-clock"></i> Attendance & Leave
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Check In Time
+                        </th>
+                        <td>{{ employee.check_in|time:"H:i"|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Check Out Time
+                        </th>
+                        <td>{{ employee.check_out|time:"H:i"|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Yearly Leaves</th>
+                        <td>{{ employee.yearly_leaves|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Total Yearly Leaves
+                        </th>
+                        <td>{{ employee.total_yearly_leaves|default:"-" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Other Information -->
+                <div class="col-md-6">
+                  <h5 class="text-secondary">
+                    <i class="fas fa-info-circle"></i> Other Information
+                  </h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width: 40%; background-color: #f8f9fa">
+                          Full Absence Fine
+                        </th>
+                        <td>₹{{ employee.full_abs_fine|default:"0" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">
+                          Half Absence Fine
+                        </th>
+                        <td>₹{{ employee.half_abd_fine|default:"0" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Created Date</th>
+                        <td>{{ employee.created_date|date:"d-m-Y H:i"|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color: #f8f9fa">Entered By</th>
+                        <td>{{ employee.entried_by|default:"-" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer">
+              <div class="text-center">
+                <a href="{% url 'employee_list' %}" class="btn btn-danger ml-2">
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Custom Styles -->
+<style>
+  .table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9em;
+  }
+  .card-header {
+    background: linear-gradient(45deg, #17a2b8, #28a745);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+  }
+  .card-header .card-title {
+    color: white;
+    font-weight: bold;
+  }
+  .table-sm td,
+  .table-sm th {
+    padding: 0.5rem;
+  }
+</style>
+
+{% include 'accounts/footer.html' %}

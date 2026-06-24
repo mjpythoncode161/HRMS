@@ -1,0 +1,201 @@
+{% load static %}
+
+<!-- 1. Bootstrap -->
+<script src="{% static 'assets/assets/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- 2. Select2 (must load before AdminLTE) -->
+<script src="{% static 'assets/assets/plugins/select2/js/select2.full.min.js' %}"></script>
+<!-- 3. bs-custom-file-input (must load before AdminLTE) -->
+<script src="{% static 'assets/assets/plugins/bs-custom-file-input/bs-custom-file-input.min.js' %}"></script>
+<!-- 4. overlayScrollbars -->
+<script src="{% static 'assets/assets/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<!-- 5. AdminLTE (must load after jQuery and plugins) -->
+<script src="{% static 'assets/assets/dist/js/adminlte.min.js' %}"></script>
+
+<!-- PAGE plugins -->
+<script src="{% static 'assets/assets/plugins/chart.js/Chart.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'assets/assets/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<!-- Global Django Messages Toast Popup -->
+{% load static %}
+{% if messages %}
+<div id="django-toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;min-width:300px;">
+  {% for message in messages %}
+  <div class="toast-msg alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} alert-dismissible shadow" role="alert"
+       style="margin-bottom:10px;border-radius:8px;font-size:15px;display:flex;align-items:center;gap:10px;">
+    {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+    {% elif message.tags == 'error' %}<i class="fas fa-times-circle"></i>
+    {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+    {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+    <span>{{ message }}</span>
+    <button type="button" class="close ml-auto" data-dismiss="alert" aria-label="Close" style="position:static;">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+<script>
+  $(document).ready(function(){
+    setTimeout(function(){
+      $('#django-toast-container .toast-msg').fadeOut(500, function(){ $(this).remove(); });
+    }, 3500);
+  });
+</script>
+{% endif %}
+
+<!-- ======================================================
+     PERSISTENT LOCATION TRACKING
+     Resumes watchPosition on every page if check-in is active.
+     Stops automatically when HRMS_stopLocationTracking() is called
+     (triggered by check-out form submission).
+====================================================== -->
+<script>
+(function () {
+  'use strict';
+  var TRACK_API = "{% url 'save_location_update' %}";
+  var THRESHOLD = 100; // 100 metres before storing a new movement point
+  var STAY_TIME_MS = 60 * 1000; // wait 1 minute before firing
+  var INTERVAL_MS = 30 * 1000; // heartbeat every 30 seconds
+  var _watchId = null;
+  var _intervalId = null;
+  var _lastLat = null;
+  var _lastLng = null;
+  var _outTimer = null;
+  var _candidateLat = null;
+  var _candidateLng = null;
+
+  function _getCsrf() {
+    var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  function _hav(lat1, lng1, lat2, lng2) {
+    var R = 6371000;
+    var toR = function (v) { return v * Math.PI / 180; };
+    var dLat = toR(lat2 - lat1), dLng = toR(lng2 - lng1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toR(lat1)) * Math.cos(toR(lat2)) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function _sendUpdate(lat, lng) {
+    fetch(TRACK_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': _getCsrf() },
+      body: JSON.stringify({ latitude: lat, longitude: lng, is_checkin_point: false })
+    }).catch(function () {});
+  }
+
+  function _processPosition(lat, lng) {
+    var cLat = parseFloat(localStorage.getItem('HRMS_checkin_lat'));
+    var cLng = parseFloat(localStorage.getItem('HRMS_checkin_lng'));
+    var refLat = _lastLat !== null ? _lastLat : cLat;
+    var refLng = _lastLng !== null ? _lastLng : cLng;
+
+    if (!isNaN(refLat) && !isNaN(refLng)) {
+      var dist = _hav(refLat, refLng, lat, lng);
+      if (dist > THRESHOLD) {
+        _candidateLat = lat;
+        _candidateLng = lng;
+        if (!_outTimer) {
+          _outTimer = setTimeout(function() {
+            _sendUpdate(_candidateLat, _candidateLng);
+            _lastLat = _candidateLat;
+            _lastLng = _candidateLng;
+            _outTimer = null;
+          }, STAY_TIME_MS);
+        }
+      } else {
+        if (_outTimer) {
+          clearTimeout(_outTimer);
+          _outTimer = null;
+        }
+      }
+    }
+  }
+
+  function _tryGetAndSend() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        var lat = parseFloat(pos.coords.latitude.toFixed(6));
+        var lng = parseFloat(pos.coords.longitude.toFixed(6));
+        _processPosition(lat, lng);
+      },
+      function () {},
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+    );
+  }
+
+  function _startTracking() {
+    if (!navigator.geolocation) return;
+    var cLat = parseFloat(localStorage.getItem('HRMS_checkin_lat'));
+    var cLng = parseFloat(localStorage.getItem('HRMS_checkin_lng'));
+    if (isNaN(cLat) || isNaN(cLng)) return;
+
+    _lastLat = cLat;
+    _lastLng = cLng;
+
+    // 1. watchPosition for real-time movement
+    _watchId = navigator.geolocation.watchPosition(
+      function (pos) {
+        var lat = parseFloat(pos.coords.latitude.toFixed(6));
+        var lng = parseFloat(pos.coords.longitude.toFixed(6));
+        _processPosition(lat, lng);
+      },
+      function () {},
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+    );
+
+    // 2. Interval heartbeat as reliable fallback
+    _intervalId = setInterval(_tryGetAndSend, INTERVAL_MS);
+  }
+
+  function _stopTracking() {
+    if (_watchId !== null) {
+      navigator.geolocation.clearWatch(_watchId);
+      _watchId = null;
+    }
+    if (_intervalId !== null) {
+      clearInterval(_intervalId);
+      _intervalId = null;
+    }
+    if (_outTimer !== null) {
+      clearTimeout(_outTimer);
+      _outTimer = null;
+    }
+    _lastLat = null;
+    _lastLng = null;
+    localStorage.removeItem('HRMS_tracking_active');
+    localStorage.removeItem('HRMS_checkin_lat');
+    localStorage.removeItem('HRMS_checkin_lng');
+  }
+
+  // Expose globally so checkout page can call it
+  window.HRMS_stopLocationTracking = _stopTracking;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (localStorage.getItem('HRMS_tracking_active') === 'true') {
+      _startTracking();
+      // Show any tracking indicators on the page
+      var ind = document.getElementById('hrms-tracking-indicator');
+      if (ind) ind.style.display = 'block';
+    }
+  });
+}());
+</script>
+
+</div><!-- /.wrapper -->
+</body>
+</html>

@@ -1,0 +1,317 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{% include 'accounts/sidebar.html' %}
+
+<style>
+  .emp-att-page { padding-bottom: 100px; }
+  @media (max-width: 767.98px) {
+    .emp-att-page .content { padding: 0.5rem; }
+    .emp-att-page .card { margin-bottom: 0; border-radius: 0; }
+    .emp-att-page .card-body { padding: 1rem; }
+    .emp-action-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      background: #fff;
+      border-top: 1px solid #dee2e6;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.12);
+      z-index: 1040;
+    }
+    .emp-action-bar .btn { font-size: 1.1rem; padding: 14px; border-radius: 10px; }
+    .emp-info-row { font-size: 0.9rem; }
+    .emp-loc-badge {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    .emp-camera-box video,
+    .emp-camera-box img { width: 100% !important; max-width: 100% !important; }
+  }
+  @media (min-width: 768px) {
+    .emp-action-bar { margin-top: 1rem; }
+    .emp-action-bar .btn { padding: 16px 24px; font-size: 1.2rem; }
+  }
+</style>
+
+<div class="content-wrapper emp-att-page">
+  <section class="content">
+    <div class="container-fluid px-2 px-md-3">
+      <div class="card card-outline {% if page_mode == 'check_out' %}card-warning{% else %}card-success{% endif %}">
+        <div class="card-header py-2">
+          <h3 class="card-title mb-0">
+            {% if page_mode == 'check_out' %}
+            <i class="fas fa-sign-out-alt text-warning"></i> Check Out
+            {% else %}
+            <i class="fas fa-sign-in-alt text-success"></i> Check In
+            {% endif %}
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row emp-info-row mb-3">
+            <div class="col-12 col-md-4 mb-1"><strong>Name:</strong> {{ own_emp.full_name }}</div>
+            <div class="col-6 col-md-4 mb-1"><strong>Date:</strong> {{ today }}</div>
+            <div class="col-6 col-md-4 mb-1"><strong>Time:</strong> <span id="liveClock">--:--:--</span></div>
+          </div>
+
+          {% if page_mode == 'check_out' and today_attendance %}
+          <div class="alert alert-warning py-2 mb-3">
+            <i class="fas fa-clock"></i> Checked in at <strong>{{ today_attendance.check_in }}</strong>
+          </div>
+          {% endif %}
+
+          <form method="POST" id="checkinForm">
+            {% csrf_token %}
+            <input type="hidden" name="att_date" value="{{ today }}" />
+            <input type="hidden" name="latitude" id="latitude" value="0" />
+            <input type="hidden" name="longitude" id="longitude" value="0" />
+            <input type="hidden" name="photo_data" id="photoData" />
+
+            <!-- Location (auto) -->
+            <div id="locationBadge" class="emp-loc-badge alert alert-info mb-3 py-2 mb-0">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span id="locationMessage">Getting your location automatically...</span>
+            </div>
+            <input type="hidden" id="latDisplay" />
+            <input type="hidden" id="lngDisplay" />
+
+            <!-- Selfie -->
+            <div class="card card-outline card-info mb-3 emp-camera-box">
+              <div class="card-header py-2">
+                <h5 class="card-title mb-0" style="font-size:1rem;">
+                  <i class="fas fa-camera"></i> Selfie
+                </h5>
+              </div>
+              <div class="card-body text-center p-2">
+                <video
+                  id="videoPreview"
+                  autoplay
+                  playsinline
+                  muted
+                  style="width:100%;max-width:100%;border-radius:10px;background:#000;display:none;"
+                ></video>
+                <div id="capturedPreview" style="display:none;">
+                  <img id="capturedImg" alt="Selfie"
+                       style="width:100%;max-width:100%;border:2px solid #28a745;border-radius:10px;" />
+                  <p class="text-success mt-2 mb-0 small">
+                    <i class="fas fa-check-circle"></i> Selfie captured
+                  </p>
+                </div>
+                <div id="cameraPlaceholder" class="py-3 text-muted">
+                  <i class="fas fa-camera fa-2x mb-2"></i>
+                  <p class="mb-0 small">Camera will open automatically</p>
+                </div>
+                <p id="cameraError" class="text-danger mt-2 small" style="display:none;"></p>
+                <button type="button" class="btn btn-sm btn-outline-info mt-2" id="btnOpenCamera" style="display:none;">
+                  <i class="fas fa-video"></i> Open Camera
+                </button>
+                <button type="button" class="btn btn-sm btn-success mt-2" id="btnCapturePhoto" style="display:none;">
+                  <i class="fas fa-camera"></i> Retake Selfie
+                </button>
+                <canvas id="photoCanvas" style="display:none;"></canvas>
+              </div>
+            </div>
+
+            <!-- Sticky action button (mobile) -->
+            <div class="emp-action-bar">
+              {% if page_mode == 'check_out' %}
+              <button type="button" class="btn btn-warning btn-block" id="btnSubmit">
+                <i class="fas fa-sign-out-alt"></i> <strong>CHECK OUT</strong>
+              </button>
+              {% else %}
+              <button type="button" class="btn btn-success btn-block" id="btnSubmit">
+                <i class="fas fa-sign-in-alt"></i> <strong>CHECK IN</strong>
+              </button>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const LOCATION_API_URL = "{% url 'save_location_update' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+  const PAGE_MODE = "{{ page_mode }}";
+  const IS_CHECKOUT = PAGE_MODE === "check_out";
+
+  const form = document.getElementById("checkinForm");
+  const photoData = document.getElementById("photoData");
+  const video = document.getElementById("videoPreview");
+  const canvas = document.getElementById("photoCanvas");
+  const capturedPreview = document.getElementById("capturedPreview");
+  const capturedImg = document.getElementById("capturedImg");
+  const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+  const cameraError = document.getElementById("cameraError");
+  const locationBadge = document.getElementById("locationBadge");
+  const locationMessage = document.getElementById("locationMessage");
+  const btnSubmit = document.getElementById("btnSubmit");
+
+  let stream = null;
+  let locationReady = false;
+  let autoCaptureDone = false;
+
+  function tickClock() {
+    document.getElementById("liveClock").textContent = new Date().toLocaleTimeString();
+  }
+  setInterval(tickClock, 1000);
+  tickClock();
+
+  function setLocation(lat, lng) {
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lng;
+    document.getElementById("latDisplay").value = lat;
+    document.getElementById("lngDisplay").value = lng;
+    locationReady = true;
+    locationBadge.className = "emp-loc-badge alert alert-success mb-3 py-2";
+    locationMessage.innerHTML =
+      '<i class="fas fa-map-marker-alt"></i> Location: ' + lat + ', ' + lng;
+  }
+
+  function getLocation() {
+    locationBadge.className = "emp-loc-badge alert alert-info mb-3 py-2";
+    locationMessage.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i> Getting your location automatically...';
+
+    if (!navigator.geolocation) {
+      locationBadge.className = "emp-loc-badge alert alert-danger mb-3 py-2";
+      locationMessage.textContent = "GPS not supported. Use a mobile browser.";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        const lat = pos.coords.latitude.toFixed(6);
+        const lng = pos.coords.longitude.toFixed(6);
+        setLocation(lat, lng);
+        if (!IS_CHECKOUT) {
+          fetch(LOCATION_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF_TOKEN },
+            body: JSON.stringify({ latitude: lat, longitude: lng, is_checkin_point: true }),
+          }).catch(function () {});
+          localStorage.setItem("HRMS_checkin_lat", lat);
+          localStorage.setItem("HRMS_checkin_lng", lng);
+          localStorage.setItem("HRMS_tracking_active", "true");
+        }
+      },
+      function () {
+        locationBadge.className = "emp-loc-badge alert alert-danger mb-3 py-2";
+        locationMessage.innerHTML =
+          '<i class="fas fa-exclamation-triangle"></i> Allow location/GPS and refresh the page.';
+      },
+      { enableHighAccuracy: true, timeout: 25000, maximumAge: 0 }
+    );
+  }
+
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(function (t) { t.stop(); });
+      stream = null;
+    }
+  }
+
+  function capturePhoto() {
+    if (!video.srcObject) return false;
+    const w = video.videoWidth || 640;
+    const h = video.videoHeight || 480;
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(video, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+    photoData.value = dataUrl;
+    capturedImg.src = dataUrl;
+    capturedPreview.style.display = "block";
+    video.style.display = "none";
+    cameraPlaceholder.style.display = "none";
+    document.getElementById("btnCapturePhoto").style.display = "inline-block";
+    stopCamera();
+    return true;
+  }
+
+  function openCamera(autoCapture) {
+    cameraError.style.display = "none";
+    document.getElementById("btnOpenCamera").style.display = "inline-block";
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      cameraError.style.display = "block";
+      cameraError.textContent = "Camera not supported. Use Chrome/Safari on mobile.";
+      return;
+    }
+    navigator.mediaDevices
+      .getUserMedia({
+        video: { facingMode: { ideal: "user" }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      })
+      .then(function (mediaStream) {
+        stopCamera();
+        stream = mediaStream;
+        video.srcObject = stream;
+        video.style.display = "block";
+        cameraPlaceholder.style.display = "none";
+        capturedPreview.style.display = "none";
+        photoData.value = "";
+        video.onloadedmetadata = function () {
+          if (autoCapture && !autoCaptureDone) {
+            autoCaptureDone = true;
+            setTimeout(function () {
+              if (capturePhoto()) {
+                document.getElementById("btnCapturePhoto").style.display = "inline-block";
+              }
+            }, 1200);
+          } else {
+            document.getElementById("btnCapturePhoto").style.display = "inline-block";
+          }
+        };
+      })
+      .catch(function () {
+        cameraError.style.display = "block";
+        cameraError.textContent = "Allow camera permission and tap Open Camera.";
+        document.getElementById("btnOpenCamera").style.display = "inline-block";
+      });
+  }
+
+  function submitAttendance() {
+    if (!locationReady) {
+      getLocation();
+      alert("Getting location... Please allow GPS, then tap the button again.");
+      return;
+    }
+    if (!photoData.value) {
+      openCamera(true);
+      alert("Capturing selfie... Tap the button again in a few seconds.");
+      return;
+    }
+    if (IS_CHECKOUT) {
+      if (!confirm("Check out now?")) return;
+      if (typeof HRMS_stopLocationTracking === "function") {
+        HRMS_stopLocationTracking();
+      } else {
+        localStorage.removeItem("HRMS_tracking_active");
+        localStorage.removeItem("HRMS_checkin_lat");
+        localStorage.removeItem("HRMS_checkin_lng");
+      }
+    }
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    form.submit();
+  }
+
+  document.getElementById("btnOpenCamera").addEventListener("click", function () {
+    openCamera(false);
+  });
+  document.getElementById("btnCapturePhoto").addEventListener("click", function () {
+    openCamera(true);
+  });
+  btnSubmit.addEventListener("click", submitAttendance);
+
+  document.addEventListener("DOMContentLoaded", function () {
+    getLocation();
+    openCamera(PAGE_MODE === "check_in");
+  });
+</script>
+
+{% include 'accounts/footer.html' %}

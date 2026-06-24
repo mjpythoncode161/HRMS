@@ -1,0 +1,162 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Attendance List</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tracking active indicator -->
+  <div id="hrms-tracking-indicator" style="display:none;" class="px-3 pb-2">
+    <div class="alert alert-success py-1 mb-0">
+      <i class="fas fa-map-marker-alt fa-pulse mr-1"></i>
+      <strong>Location tracking is active.</strong>
+      {% if not is_restricted_user %}
+      <button type="button" class="btn btn-sm btn-outline-danger ml-2" onclick="HRMS_stopLocationTracking(); document.getElementById('hrms-tracking-indicator').style.display='none';">
+        <i class="fas fa-stop-circle"></i> Stop Tracking
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-header">
+              <div class="card-tools">
+                {% if not is_restricted_user %}
+                <a href="{% url 'attendance_add' %}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-plus"></i> Add New
+                </a>
+                {% else %}
+                <a href="{% url 'employee_checkin' %}" class="btn btn-sm btn-success mr-1">
+                  <i class="fas fa-sign-in-alt"></i> Check In
+                </a>
+                <a href="{% url 'employee_checkout' %}" class="btn btn-sm btn-warning">
+                  <i class="fas fa-sign-out-alt"></i> Check Out
+                </a>
+                {% endif %}
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Filter Form -->
+              <form method="GET" action="" class="mb-3">
+                <div class="row align-items-end">
+                  <div class="col-sm-3">
+                    <label class="form-label mb-1"><strong>From Date</strong></label>
+                    <input type="date" name="date_from" class="form-control form-control-sm"
+                           value="{{ date_from }}">
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="form-label mb-1"><strong>To Date</strong></label>
+                    <input type="date" name="date_to" class="form-control form-control-sm"
+                           value="{{ date_to }}">
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="form-label mb-1"><strong>Status</strong></label>
+                    <select name="status" class="form-control form-control-sm">
+                      <option value="">-- All --</option>
+                      <option value="Present" {% if status_filter == "Present" %}selected{% endif %}>Present</option>
+                      <option value="Absent" {% if status_filter == "Absent" %}selected{% endif %}>Absent</option>
+                      <option value="Half Day" {% if status_filter == "Half Day" %}selected{% endif %}>Half Day</option>
+                      <option value="Leave" {% if status_filter == "Leave" %}selected{% endif %}>Leave</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3 d-flex gap-2 mt-2 mt-sm-0">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                      <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="{% url 'attendance_list' %}" class="btn btn-sm btn-secondary">
+                      <i class="fas fa-redo"></i> Reset
+                    </a>
+                  </div>
+                </div>
+              </form>
+              <!-- End Filter Form -->
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead class="text-center">
+                    <tr>
+                      <th>SI NO</th>
+                      <th>Employee Name</th>
+                      <th>Date</th>
+                      <th>Check In</th>
+                      <th>Check Out</th>
+                      <th>Worked Hours</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for att in attendance %}
+                    <tr>
+                      <td class="text-center">{{ forloop.counter }}</td>
+                      <td>{{ att.full_name }}</td>
+                      <td class="text-center">{{ att.att_date }}</td>
+                      <td class="text-center">{{ att.check_in }}</td>
+                      <td class="text-center">{{ att.check_out|default:"-" }}</td>
+                      <td class="text-center">{{ att.worked_hours|default:"-" }}</td>
+                      <td class="text-center">
+                        <span class="badge badge-info">{{ att.attendance_status }}</span>
+                      </td>
+                      <td class="text-center">
+                        <a href="{% url 'attendance_detail' att.id %}" class="btn btn-xs btn-primary" title="View Details">
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        {% if not att.check_out %}
+                          {% if is_restricted_user %}
+                            {% now "Y-m-d" as today_str %}
+                            {% if att.att_date|date:"Y-m-d" == today_str %}
+                            <a href="{% url 'employee_checkout' %}" class="btn btn-xs btn-warning" title="Check Out">
+                              <i class="fas fa-sign-out-alt"></i> Check Out
+                            </a>
+                            {% else %}
+                            <span class="badge badge-secondary" title="Can only check out on the same day">Pending</span>
+                            {% endif %}
+                          {% else %}
+                          <a href="{% url 'attendance_edit' att.id %}" class="btn btn-xs btn-warning" title="Add Check-Out Time">
+                            <i class="fas fa-clock"></i> Check Out
+                          </a>
+                          {% endif %}
+                        {% elif not is_restricted_user %}
+                        <a href="{% url 'employee_location_map' att.emp_id att.att_date|date:'Y-m-d' %}"
+                           class="btn btn-xs btn-info" target="_blank" title="View Location Map">
+                          <i class="fas fa-map-marker-alt"></i> View Location
+                        </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="8" class="text-center">No attendance records found</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Show tracking indicator if tracking is active
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('HRMS_tracking_active') === 'true') {
+      document.getElementById('hrms-tracking-indicator').style.display = 'block';
+    }
+  });
+</script>
+
+{% include 'accounts/footer.html' %}

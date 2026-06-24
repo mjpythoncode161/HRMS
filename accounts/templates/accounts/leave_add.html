@@ -1,0 +1,144 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <h3 class="text-primary">{% if is_restricted_user %}Leave Apply{% else %}Add Leave Request{% endif %}</h3>
+          <hr />
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <!-- Row 1 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Employee Name *</label>
+                {% if is_restricted_user %}
+                <input
+                  type="text"
+                  class="form-control"
+                  value="{{ own_emp.full_name }}"
+                  readonly
+                />
+                <input type="hidden" name="emp_id" value="{{ own_emp.emp_id }}" />
+                {% else %}
+                <select
+                  name="emp_id"
+                  class="form-control"
+                  required
+                  id="employee_select"
+                >
+                  <option value="">-- Select Employee --</option>
+                  {% for emp in employees %}
+                  <option
+                    value="{{ emp.emp_id }}"
+                    data-name="{{ emp.full_name }}"
+                  >
+                    {{ emp.full_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Leave Type *</label>
+                <select name="leave_type" class="form-control" required>
+                  <option value="">-- Select Leave Type --</option>
+                  <option value="Casual Leave">Casual Leave</option>
+                  <option value="Sick Leave">Sick Leave</option>
+                  <option value="Earned Leave">Earned Leave</option>
+                  <option value="Maternity Leave">Maternity Leave</option>
+                  <option value="Paternity Leave">Paternity Leave</option>
+                  <option value="Unpaid Leave">Unpaid Leave</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Start Date *</label>
+                <input
+                  type="date"
+                  name="start_date"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>End Date *</label>
+                <input
+                  type="date"
+                  name="end_date"
+                  class="form-control"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Leave Duration *</label>
+                <select name="leave_duration" class="form-control" required>
+                  <option value="">-- Select Duration --</option>
+                  <option value="Full Day">Full Day</option>
+                  <option value="Half Day - Morning">Half Day - Morning</option>
+                  <option value="Half Day - Afternoon">
+                    Half Day - Afternoon
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Is Paid Leave? *</label>
+                <select name="is_paid" class="form-control" required>
+                  <option value="1">Yes - Paid</option>
+                  <option value="0">No - Unpaid</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="row">
+              <div class="col-md-12 form-group">
+                <label>Reason *</label>
+                <textarea
+                  name="reason"
+                  class="form-control"
+                  rows="3"
+                  required
+                  placeholder="Enter reason for leave"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="card-footer border-top border-info mt-3">
+              <div
+                class="d-flex w-100 justify-content-center align-items-center"
+              >
+                <button
+                  class="btn btn-flat bg-gradient-primary mx-2"
+                  type="submit"
+                >
+                  <i class="fas fa-save"></i> Submit Leave
+                </button>
+                <a
+                  class="btn btn-flat bg-gradient-secondary mx-2"
+                  href="{% url 'leave_list' %}"
+                >
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

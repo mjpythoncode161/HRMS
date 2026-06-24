@@ -1,0 +1,60 @@
+{% include 'accounts/header.html' %}
+{% include 'accounts/sidebar.html' %}
+{% include 'accounts/topbar.html' %}
+
+
+          <style>
+            .card-footer {
+              background-color: #ffff !important;
+            }
+          </style>
+
+
+          <div class="content-wrapper">
+            <div class="container-fluid">
+            <div class="content-header">
+            <section class="content">
+          <div class="col-lg-12">
+            <div class="card card-outline card-primary">
+              <div class="card-body">
+          
+              
+                  <div class="row">
+                     
+                      
+                    <div class="col-md-12">
+                      <div id="msg" class="">
+                      </div>
+                     
+                      <h3 class="text-primary">Add Department</h3>
+                      <br>
+                      <form method='POST' action="" >
+                        {% csrf_token %}
+                      <div class="row">
+                          <div class="col-sm-4 form-group ">
+                            <label for="" class="control-label">Department Name</label>
+                            <input type="text" name="department_name" id="department_name" cols="30" rows="2" class="form-control" value="" >
+                          </div>
+                         
+            </div>  
+              
+                <div class="card-footer border-top border-info">
+                  <div class="d-flex w-100 justify-content-center align-items-center">
+                    <button class="btn btn-flat  bg-gradient-primary mx-2" type="submit">Save</button>
+                    <a class="btn btn-flat bg-gradient-secondary mx-2" href="{% url 'home' %}">Cancel</a>
+                  </div>
+                </div>
+              </div>
+              </div>
+              </div>
+              
+              </div>
+              </form>
+       
+
+  
+          
+
+    
+         
+{% include 'accounts/footer.html' %}

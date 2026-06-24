@@ -1,0 +1,169 @@
+{% include 'accounts/header.html' %}
+{% include 'accounts/topbar.html' %}
+{% include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>
+            <i class="fas fa-map-marked-alt text-info"></i>
+            Employee Movement Map
+          </h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active">Location Map</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+
+      <!-- Info Card -->
+      <div class="card card-outline card-info mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-user-tie mr-1"></i>
+            {{ emp_name }} &nbsp;&mdash;&nbsp;
+            <span class="text-muted">{{ session_date }}</span>
+          </h3>
+          <div class="card-tools">
+            <span class="badge badge-info">{{ location_count }} location point(s) recorded</span>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          {% if location_count == 0 %}
+            <div class="alert alert-warning m-3">
+              <i class="fas fa-info-circle"></i>
+              No location data available for this employee on <strong>{{ session_date }}</strong>.
+            </div>
+          {% else %}
+            <!-- Leaflet Map -->
+            <div id="movementMap" style="height: 520px; width: 100%;"></div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if location_count > 0 %}
+      <!-- Timeline table -->
+      <div class="card card-outline card-secondary">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-list-ol mr-1"></i> Location Timeline</h3>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-sm table-striped table-hover mb-0">
+            <thead class="thead-dark">
+              <tr>
+                <th>#</th>
+                <th>Timestamp</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="locationTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </section>
+</div>
+
+{% if location_count > 0 %}
+<!-- Leaflet CSS & JS (OpenStreetMap – no API key required) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // Location data injected from Django view
+  const locationPoints = {{ location_points_json|safe }};
+
+  document.addEventListener("DOMContentLoaded", function () {
+    if (!locationPoints || locationPoints.length === 0) return;
+
+    // ---- Initialise the map centred on the check-in point ----
+    const firstPoint = locationPoints[0];
+    const map = L.map("movementMap").setView([firstPoint.lat, firstPoint.lng], 16);
+
+    // OpenStreetMap tile layer (free, no API key)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Custom icons
+    const checkinIcon = L.divIcon({
+      className: "",
+      html:
+        '<div style="background:#28a745;width:14px;height:14px;border-radius:50%;' +
+        'border:3px solid #fff;box-shadow:0 0 4px rgba(0,0,0,.5)"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+    const movementIcon = L.divIcon({
+      className: "",
+      html:
+        '<div style="background:#17a2b8;width:10px;height:10px;border-radius:50%;' +
+        'border:2px solid #fff;box-shadow:0 0 3px rgba(0,0,0,.4)"></div>',
+      iconSize: [10, 10],
+      iconAnchor: [5, 5],
+    });
+
+    // Collect latlngs for the polyline
+    const latlngs = locationPoints.map((p) => [p.lat, p.lng]);
+
+    // Draw polyline path
+    if (latlngs.length > 1) {
+      L.polyline(latlngs, { color: "#007bff", weight: 3, opacity: 0.7 }).addTo(map);
+    }
+
+    // Add markers for every point
+    locationPoints.forEach(function (p, idx) {
+      const icon = p.is_checkin ? checkinIcon : movementIcon;
+      const label = p.is_checkin
+        ? "<strong>Check-In Location</strong>"
+        : "Movement Point #" + (idx + 1);
+      L.marker([p.lat, p.lng], { icon: icon })
+        .addTo(map)
+        .bindPopup(
+          "<b>" + label + "</b><br>" +
+          "<small>Time: " + p.timestamp + "</small><br>" +
+          "<small>Lat: " + p.lat + ", Lng: " + p.lng + "</small>"
+        );
+    });
+
+    // Fit all points in view
+    if (latlngs.length > 1) {
+      map.fitBounds(latlngs, { padding: [40, 40] });
+    }
+
+    // ---- Populate timeline table ----
+    const tbody = document.getElementById("locationTableBody");
+    locationPoints.forEach(function (p, idx) {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>" + (idx + 1) + "</td>" +
+        "<td>" + p.timestamp + "</td>" +
+        "<td>" + p.lat + "</td>" +
+        "<td>" + p.lng + "</td>" +
+        "<td>" +
+        (p.is_checkin
+          ? '<span class="badge badge-success">Check-In</span>'
+          : '<span class="badge badge-info">Movement</span>') +
+        "</td>";
+      tbody.appendChild(tr);
+    });
+  });
+</script>
+{% endif %}
+
+{% include 'accounts/footer.html' %}

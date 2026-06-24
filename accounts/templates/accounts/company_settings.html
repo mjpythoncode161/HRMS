@@ -1,0 +1,96 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{% include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="content-header">
+      <section class="content">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <h3 class="text-primary">Company Settings</h3>
+                  <p class="text-muted">
+                    Update company name, logo, and contact details. These appear on payslips, sidebar, and login pages.
+                  </p>
+                  <br />
+
+                  <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="col-md-6 form-group">
+                        <label class="control-label">Company Name <span class="text-danger">*</span></label>
+                        <input
+                          type="text"
+                          name="name"
+                          class="form-control"
+                          value="{{ company.name|default:'' }}"
+                          required
+                        />
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label class="control-label">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          class="form-control"
+                          value="{{ company.email|default:'' }}"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6 form-group">
+                        <label class="control-label">Contact / Website</label>
+                        <input
+                          type="text"
+                          name="contact"
+                          class="form-control"
+                          value="{{ company.contact|default:'' }}"
+                          placeholder="e.g. www.company.com"
+                        />
+                      </div>
+                      <div class="col-md-6 form-group">
+                        <label class="control-label">Company Logo</label>
+                        <input type="file" name="logo" class="form-control-file" accept="image/*" />
+                        <small class="form-text text-muted">PNG, JPG, or WEBP. Leave empty to keep current logo.</small>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-12 form-group">
+                        <label class="control-label">Address</label>
+                        <textarea name="address" class="form-control" rows="3">{{ company.address|default:'' }}</textarea>
+                      </div>
+                    </div>
+
+                    {% if company_logo_url %}
+                    <div class="row mb-3">
+                      <div class="col-md-12">
+                        <label class="control-label d-block">Current Logo</label>
+                        <img src="{{ company_logo_url }}" alt="Company Logo" style="max-height: 80px; max-width: 220px; border: 1px solid #ddd; padding: 6px; background: #fff;" />
+                      </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-footer border-top border-info">
+                      <div class="d-flex w-100 justify-content-center align-items-center">
+                        <button class="btn btn-flat bg-gradient-primary mx-2" type="submit">
+                          Save Settings
+                        </button>
+                        <a class="btn btn-flat bg-gradient-secondary mx-2" href="{% url 'home' %}">Cancel</a>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{% include 'accounts/footer.html' %}

@@ -1,0 +1,67 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %} 
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <div class="container-fluid">
+    <div class="content-header">
+      <section class="content">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <h3 class="text-primary">Add Holiday</h3>
+                  <br />
+                  <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="row">
+                      <div class="col-sm-4 form-group">
+                        <label class="control-label">Holiday Title</label>
+                        <input
+                          type="text"
+                          name="holiday_title"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-4 form-group">
+                        <label class="control-label">Holiday Date</label>
+                        <input
+                          type="date"
+                          name="holiday_date"
+                          class="form-control"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="card-footer border-top border-info">
+                      <div
+                        class="d-flex w-100 justify-content-center align-items-center"
+                      >
+                        <button
+                          class="btn btn-flat bg-gradient-primary mx-2"
+                          type="submit"
+                        >
+                          Save
+                        </button>
+                        <a
+                          class="btn btn-flat bg-gradient-secondary mx-2"
+                          href="{% url 'holiday_list' %}"
+                          >Cancel</a
+                        >
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+{% include 'accounts/footer.html' %}

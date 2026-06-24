@@ -1,0 +1,124 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Visitor Details</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'visitor_list' %}">{% if is_admin %}All Visitors{% else %}My Visitors{% endif %}</a></li>
+            <li class="breadcrumb-item active">View Details</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="card card-outline card-info">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-user-tie"></i> {{ visitor.client_name }} — Visit Details
+              </h3>
+              <div class="card-tools">
+                <a href="{% url 'visitor_edit' visitor.id %}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'visitor_list' %}" class="btn btn-sm btn-secondary ml-1">
+                  <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 class="text-primary"><i class="fas fa-address-card"></i> Client Information</h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width:40%;background-color:#f8f9fa;">Client Name</th>
+                        <td><strong>{{ visitor.client_name }}</strong></td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Phone</th>
+                        <td>{{ visitor.phone|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Location / Place</th>
+                        <td>{{ visitor.location|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Visit Date</th>
+                        <td>{{ visitor.visit_date }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Added On</th>
+                        <td>{{ visitor.created_at|date:"d M Y, H:i" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col-md-6">
+                  <h5 class="text-success"><i class="fas fa-user-tie"></i> Added By</h5>
+                  <table class="table table-bordered table-sm">
+                    <tbody>
+                      <tr>
+                        <th style="width:40%;background-color:#f8f9fa;">Employee Name</th>
+                        <td>{{ visitor.emp_name|default:visitor.user.username }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Employee ID</th>
+                        <td>{{ visitor.emp_id|default:"-" }}</td>
+                      </tr>
+                      <tr>
+                        <th style="background-color:#f8f9fa;">Username</th>
+                        <td>{{ visitor.user.username }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <h5 class="text-warning mt-3"><i class="fas fa-sticky-note"></i> Notes</h5>
+                  <div class="card card-body bg-light">
+                    {{ visitor.notes|default:"No notes provided."|linebreaksbr }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Client Photo Row -->
+              <div class="row mt-4">
+                <div class="col-md-12">
+                  <h5 class="text-info"><i class="fas fa-camera"></i> Client Photo</h5>
+                  {% if visitor.photo %}
+                  <div class="mt-2">
+                    <a href="{{ visitor.photo.url }}" target="_blank" title="Open full size">
+                      <img src="{{ visitor.photo.url }}" alt="Client Photo"
+                           style="max-width:300px;max-height:300px;object-fit:cover;
+                                  border:3px solid #28a745;border-radius:10px;
+                                  cursor:pointer;" />
+                    </a>
+                    <br/>
+                    <small class="text-muted mt-1 d-block">Click to open full size</small>
+                  </div>
+                  {% else %}
+                  <p class="text-muted"><i class="fas fa-image mr-1"></i> No photo captured for this visit.</p>
+                  {% endif %}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

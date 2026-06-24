@@ -1,0 +1,297 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{% include 'accounts/sidebar.html' %}
+{% load static %}
+
+<style>
+  .payslip-sheet {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fff;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid #222;
+    font-size: 13px;
+  }
+  .payslip-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .payslip-sheet th,
+  .payslip-sheet td {
+    border: 1px solid #222;
+    padding: 6px 10px;
+    vertical-align: middle;
+  }
+  .payslip-top {
+    text-align: center;
+    padding: 18px 16px 10px;
+    border-bottom: 1px solid #222;
+  }
+  .payslip-top img {
+    max-height: 56px;
+    max-width: 180px;
+    margin-bottom: 8px;
+  }
+  .payslip-top .company-name {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .payslip-top .company-address,
+  .payslip-top .company-contact {
+    margin: 0;
+    font-size: 12px;
+    color: #333;
+    line-height: 1.45;
+  }
+  .payslip-title-bar {
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    background: #e8e8e8;
+    padding: 8px 10px;
+    border-bottom: 1px solid #222;
+  }
+  .payslip-label {
+    width: 18%;
+    color: #222;
+    font-weight: 600;
+  }
+  .payslip-value {
+    width: 32%;
+  }
+  .payslip-section-head th {
+    background: #e8e8e8;
+    font-weight: 700;
+    text-align: center;
+  }
+  .payslip-amount {
+    text-align: right;
+    white-space: nowrap;
+    width: 16%;
+  }
+  .payslip-total-row td {
+    font-weight: 700;
+    background: #fafafa;
+  }
+  .payslip-net-row td {
+    font-weight: 700;
+    background: #fafafa;
+  }
+  .payslip-footer {
+    text-align: center;
+    font-size: 12px;
+    background: #e8e8e8;
+    padding: 8px 10px;
+    border-top: 1px solid #222;
+  }
+  @media print {
+    .main-sidebar,
+    .main-header,
+    .content-header,
+    .no-print,
+    .card-tools {
+      display: none !important;
+    }
+    .content-wrapper {
+      margin-left: 0 !important;
+      padding: 0 !important;
+    }
+    .payslip-sheet {
+      border: none;
+      max-width: 100%;
+    }
+  }
+</style>
+
+<div class="content-wrapper">
+  <section class="content-header no-print">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Generate Payslip</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row no-print">
+        <div class="col-lg-12">
+          <div class="card card-outline card-primary">
+            <div class="card-body">
+              <form method="POST">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Employee</label>
+                      {% if is_restricted_user %}
+                      <input type="text" class="form-control" value="{{ own_emp.full_name }}" readonly />
+                      <input type="hidden" name="employee_id" value="{{ own_emp.emp_id }}" />
+                      {% else %}
+                      <select name="employee_id" class="form-control" required>
+                        <option value="">-- Select Employee --</option>
+                        {% for emp in employees %}
+                        <option value="{{ emp.emp_id }}" {% if payslip and payslip.employee.emp_id == emp.emp_id %}selected{% endif %}>
+                          {{ emp.full_name }}
+                        </option>
+                        {% endfor %}
+                      </select>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Month</label>
+                      <select name="month" class="form-control" required>
+                        <option value="1" {% if selected_month == "1" %}selected{% endif %}>January</option>
+                        <option value="2" {% if selected_month == "2" %}selected{% endif %}>February</option>
+                        <option value="3" {% if selected_month == "3" %}selected{% endif %}>March</option>
+                        <option value="4" {% if selected_month == "4" %}selected{% endif %}>April</option>
+                        <option value="5" {% if selected_month == "5" %}selected{% endif %}>May</option>
+                        <option value="6" {% if selected_month == "6" %}selected{% endif %}>June</option>
+                        <option value="7" {% if selected_month == "7" %}selected{% endif %}>July</option>
+                        <option value="8" {% if selected_month == "8" %}selected{% endif %}>August</option>
+                        <option value="9" {% if selected_month == "9" %}selected{% endif %}>September</option>
+                        <option value="10" {% if selected_month == "10" %}selected{% endif %}>October</option>
+                        <option value="11" {% if selected_month == "11" %}selected{% endif %}>November</option>
+                        <option value="12" {% if selected_month == "12" %}selected{% endif %}>December</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Year</label>
+                      <input type="number" name="year" class="form-control"
+                             value="{% if selected_year %}{{ selected_year }}{% elif payslip %}{{ payslip.year }}{% else %}2026{% endif %}" required />
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-file-invoice-dollar"></i> Generate Payslip
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if payslip %}
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="mb-2 text-right no-print">
+            <button type="button" class="btn btn-info btn-sm" onclick="window.print()">
+              <i class="fas fa-print"></i> Print
+            </button>
+          </div>
+
+          <div class="payslip-sheet" id="payslip-section">
+            <div class="payslip-top">
+              {% if company_logo_url %}
+              <img src="{{ company_logo_url }}" alt="Company Logo" />
+              {% endif %}
+              <h2 class="company-name">{{ company.name|default:"Company Name" }}</h2>
+              <p class="company-address">{{ company.address|default:"Company Address" }}</p>
+              {% if company %}
+              <p class="company-contact">
+                {% if company.contact %}{{ company.contact }}{% endif %}
+                {% if company.contact and company.email %} | {% endif %}
+                {% if company.email %}{{ company.email }}{% endif %}
+              </p>
+              {% endif %}
+            </div>
+
+            <div class="payslip-title-bar">
+              Pay Slip for the Month {{ payslip.month }} {{ payslip.year }}
+            </div>
+
+            <table>
+              <tr>
+                <td class="payslip-label">Employee Name</td>
+                <td class="payslip-value">{{ payslip.employee.full_name|default:"-" }}</td>
+                <td class="payslip-label">Designation</td>
+                <td class="payslip-value">{{ payslip.employee.desig|default:"-" }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">Employee ID</td>
+                <td class="payslip-value">{{ payslip.employee.emp_id }}</td>
+                <td class="payslip-label">Department</td>
+                <td class="payslip-value">{{ payslip.employee.dept|default:"-" }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">No. of Days</td>
+                <td class="payslip-value">{{ payslip.total_days }}</td>
+                <td class="payslip-label">Days Paid</td>
+                <td class="payslip-value">{{ payslip.paid_days }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">PAN No</td>
+                <td class="payslip-value">-</td>
+                <td class="payslip-label">LOP Days</td>
+                <td class="payslip-value">{{ payslip.lop_days }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">Bank Name</td>
+                <td class="payslip-value">{{ payslip.employee.bank_name|default:payslip.employee.bank|default:"-" }}</td>
+                <td class="payslip-label">Account Number</td>
+                <td class="payslip-value">{{ payslip.employee.account_no|default:"-" }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">DOJ</td>
+                <td class="payslip-value">{{ payslip.employee.join_date|date:"d M Y"|default:"-" }}</td>
+                <td class="payslip-label">DOB</td>
+                <td class="payslip-value">{{ payslip.employee.dob|date:"d M Y"|default:"-" }}</td>
+              </tr>
+              <tr>
+                <td class="payslip-label">PF A/C Number</td>
+                <td class="payslip-value">-</td>
+                <td class="payslip-label">UAN No.</td>
+                <td class="payslip-value">-</td>
+              </tr>
+            </table>
+
+            <table>
+              <tr class="payslip-section-head">
+                <th style="width:34%;">Emoluments</th>
+                <th style="width:16%;">Amount (Rs.)</th>
+                <th style="width:34%;">Deductions</th>
+                <th style="width:16%;">Amount (Rs.)</th>
+              </tr>
+              {% for row in payslip.salary_rows %}
+              <tr>
+                <td>{% if row.earning %}{{ row.earning.name }}{% else %}&nbsp;{% endif %}</td>
+                <td class="payslip-amount">{% if row.earning %}{{ row.earning.amount_fmt }}{% else %}&nbsp;{% endif %}</td>
+                <td>{% if row.deduction %}{{ row.deduction.name }}{% else %}&nbsp;{% endif %}</td>
+                <td class="payslip-amount">{% if row.deduction %}{{ row.deduction.amount_fmt }}{% else %}&nbsp;{% endif %}</td>
+              </tr>
+              {% endfor %}
+              <tr class="payslip-total-row">
+                <td>Gross Pay (A)</td>
+                <td class="payslip-amount">{{ payslip.gross_salary_fmt }}</td>
+                <td>Total Deductions (B)</td>
+                <td class="payslip-amount">{{ payslip.total_deductions_fmt }}</td>
+              </tr>
+              <tr class="payslip-net-row">
+                <td>Net Pay (A - B)</td>
+                <td class="payslip-amount">{{ payslip.net_salary_fmt }}</td>
+                <td>Amount in Words</td>
+                <td>{{ payslip.amount_in_words }}</td>
+              </tr>
+            </table>
+
+            <div class="payslip-footer">
+              This is a computer generated payslip and does not require signature
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

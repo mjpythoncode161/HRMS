@@ -1,0 +1,461 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %}
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <h3 class="text-primary">Add Attendance</h3>
+          <hr />
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <!-- Row 1 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Employee Name *</label>
+                {% if is_restricted_user %}
+                <input
+                  type="text"
+                  class="form-control"
+                  value="{{ own_emp.full_name }}"
+                  readonly
+                />
+                <input
+                  type="hidden"
+                  name="emp_id"
+                  value="{{ own_emp.emp_id }}"
+                />
+                {% else %}
+                <select
+                  name="emp_id"
+                  class="form-control"
+                  required
+                  id="employee_select"
+                >
+                  <option value="">-- Select Employee --</option>
+                  {% for emp in employees %}
+                  <option
+                    value="{{ emp.emp_id }}"
+                    data-name="{{ emp.full_name }}"
+                  >
+                    {{ emp.full_name }}
+                  </option>
+                  {% endfor %}
+                </select>
+                {% endif %}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Attendance Date *</label>
+                {% if is_restricted_user %}
+                <input
+                  type="date"
+                  name="att_date"
+                  class="form-control"
+                  required
+                  value="{{ today }}"
+                  min="{{ today }}"
+                  max="{{ today }}"
+                  id="att_date"
+                  readonly
+                />
+                {% else %}
+                <input
+                  type="date"
+                  name="att_date"
+                  class="form-control"
+                  required
+                  value="{{ today }}"
+                  id="att_date"
+                />
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Check-In Time *</label>
+                <input
+                  type="time"
+                  name="check_in"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Check-Out Time</label>
+                <input type="time" name="check_out" class="form-control" />
+              </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label>Attendance Status *</label>
+                <select name="attendance_status" class="form-control" required>
+                  <option value="">-- Select Status --</option>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Half Day">Half Day</option>
+                  <option value="Late">Late</option>
+                  <option value="On Leave">On Leave</option>
+                </select>
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Worked Day</label>
+                <select name="worked_day" class="form-control">
+                  <option value="">-- Select --</option>
+                  <option value="Full Day">Full Day</option>
+                  <option value="Half Day">Half Day</option>
+                  <option value="Absent">Absent</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 4 - Location -->
+            <div class="row">
+              <div class="col-md-12">
+                <h5 class="text-info mt-3 mb-2">
+                  <i class="fas fa-map-marker-alt"></i> Location Information
+                </h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5 form-group">
+                <label>Latitude</label>
+                <input
+                  type="text"
+                  name="latitude"
+                  id="latitude"
+                  class="form-control"
+                  value="0"
+                  readonly
+                />
+              </div>
+              <div class="col-md-5 form-group">
+                <label>Longitude</label>
+                <input
+                  type="text"
+                  name="longitude"
+                  id="longitude"
+                  class="form-control"
+                  value="0"
+                  readonly
+                />
+              </div>
+              <div class="col-md-2 form-group">
+                <label>&nbsp;</label>
+                <button
+                  type="button"
+                  id="getLocationBtn"
+                  class="btn btn-info btn-block"
+                  onclick="getCurrentLocation()"
+                >
+                  <i class="fas fa-crosshairs"></i> Get Location
+                </button>
+              </div>
+            </div>
+
+            <!-- Location Status -->
+            <div class="row">
+              <div class="col-md-12">
+                <div
+                  id="locationStatus"
+                  class="alert alert-info"
+                  style="display: none"
+                >
+                  <i class="fas fa-info-circle"></i>
+                  <span id="locationMessage"
+                    >Click "Get Location" to capture your current
+                    position.</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="card-footer border-top border-info mt-3">
+              <div
+                class="d-flex w-100 justify-content-center align-items-center"
+              >
+                <button
+                  class="btn btn-flat bg-gradient-primary mx-2"
+                  type="submit"
+                >
+                  <i class="fas fa-save"></i> Save Attendance
+                </button>
+                <a
+                  class="btn btn-flat bg-gradient-secondary mx-2"
+                  href="{% url 'attendance_list' %}"
+                >
+                  <i class="fas fa-times"></i> Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Date restriction & form validation -->
+<script>
+  // Set max date to today to prevent future date selection
+  document.addEventListener("DOMContentLoaded", function () {
+    var today = new Date().toISOString().split("T")[0];
+    var attDateInput = document.getElementById("att_date");
+    if (attDateInput) {
+      attDateInput.setAttribute("max", today);
+    }
+  });
+
+  // Block form submission if date is not today (past or future)
+  document.querySelector("form").addEventListener("submit", function (e) {
+    var attDateInput = document.getElementById("att_date");
+    if (attDateInput && attDateInput.value) {
+      var today = new Date().toISOString().split("T")[0];
+      if (attDateInput.value < today) {
+        e.preventDefault();
+        alert("Attendance cannot be added for a past date. Please select today's date.");
+        attDateInput.value = today;
+        attDateInput.focus();
+      } else if (attDateInput.value > today) {
+        e.preventDefault();
+        alert("Attendance cannot be added for a future date. Please select today's date.");
+        attDateInput.value = today;
+        attDateInput.focus();
+      }
+    }
+  });
+</script>
+
+<!-- Geolocation JavaScript -->
+<script>
+  // -------------------------------------------------------
+  // LOCATION TRACKING  (check-in → watchPosition → check-out)
+  // -------------------------------------------------------
+  const LOCATION_API_URL = "{% url 'save_location_update' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+  const THRESHOLD_METERS = 100;       // distance threshold before storing a new point
+  const STAY_TIME_MS = 60 * 1000;     // time to wait before confirming out of bounds
+
+  let checkinLat = null;
+  let checkinLng = null;
+  let watchId = null;
+  let trackingActive = false;
+  let outTimer = null;
+
+  // Haversine formula – returns distance in metres between two lat/lng pairs
+  function haversineDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371000; // Earth radius in metres
+    const toRad = (v) => (v * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  // Send a single location record to the Django API
+  function sendLocationToServer(lat, lng, isCheckinPoint) {
+    fetch(LOCATION_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": CSRF_TOKEN,
+      },
+      body: JSON.stringify({
+        latitude: lat,
+        longitude: lng,
+        is_checkin_point: isCheckinPoint,
+      }),
+    }).catch(function () {
+      // Silently ignore network errors during background tracking
+    });
+  }
+
+  // Stop watchPosition tracking
+  function stopTracking() {
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      watchId = null;
+    }
+    if (outTimer !== null) {
+      clearTimeout(outTimer);
+      outTimer = null;
+    }
+    trackingActive = false;
+  }
+
+  // Called once when the user captures their check-in location
+  function getCurrentLocation() {
+    const getLocationBtn = document.getElementById("getLocationBtn");
+    const latitudeInput = document.getElementById("latitude");
+    const longitudeInput = document.getElementById("longitude");
+    const statusDiv = document.getElementById("locationStatus");
+    const statusMessage = document.getElementById("locationMessage");
+
+    getLocationBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i> Getting Location...';
+    getLocationBtn.disabled = true;
+
+    statusDiv.style.display = "block";
+    statusDiv.className = "alert alert-info";
+    statusMessage.textContent = "Requesting location access...";
+
+    if (!navigator.geolocation) {
+      showLocationError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function (position) {
+        const lat = parseFloat(position.coords.latitude.toFixed(6));
+        const lng = parseFloat(position.coords.longitude.toFixed(6));
+        const accuracy = position.coords.accuracy;
+
+        // Store as check-in coordinates
+        checkinLat = lat;
+        checkinLng = lng;
+
+        latitudeInput.value = lat;
+        longitudeInput.value = lng;
+
+        // ── Persist checkin position to localStorage so tracking
+        //    continues after this page navigates away ──────────────
+        localStorage.setItem("HRMS_checkin_lat", lat.toString());
+        localStorage.setItem("HRMS_checkin_lng", lng.toString());
+ 
+        statusDiv.className = "alert alert-success";
+        statusMessage.innerHTML =
+          '<i class="fas fa-check-circle"></i> Location captured! ' +
+          '<small class="text-muted">Accuracy: ' +
+          Math.round(accuracy) +
+          " m | Lat: " +
+          lat +
+          ", Lng: " +
+          lng +
+          "</small>" +
+          '<br><span class="badge badge-info">Continuous tracking active</span>';
+
+        getLocationBtn.innerHTML =
+          '<i class="fas fa-check"></i> Location Captured';
+        getLocationBtn.disabled = false;
+
+        // Save the check-in point itself
+        sendLocationToServer(lat, lng, true);
+
+        // Start continuous tracking
+        startContinuousTracking();
+      },
+      function (error) {
+        let errorMessage = "";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage =
+              "Location access denied. Please enable location permission and try again.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage =
+              "Location unavailable. Please check your GPS/location settings.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out. Please try again.";
+            break;
+          default:
+            errorMessage =
+              "An unknown error occurred while retrieving location.";
+        }
+        showLocationError(errorMessage);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  // Begin watchPosition loop – stores updates only when beyond threshold
+  function startContinuousTracking() {
+    if (!navigator.geolocation || checkinLat === null) return;
+
+    trackingActive = true;
+
+    // lastLat/lastLng tracks the last RECORDED position so the full trail is captured
+    let lastLat = checkinLat;
+    let lastLng = checkinLng;
+    let candidateLat = null;
+    let candidateLng = null;
+
+    watchId = navigator.geolocation.watchPosition(
+      function (position) {
+        if (!trackingActive) return;
+
+        const lat = parseFloat(position.coords.latitude.toFixed(6));
+        const lng = parseFloat(position.coords.longitude.toFixed(6));
+
+        const dist = haversineDistance(lastLat, lastLng, lat, lng);
+
+        // Store when moved beyond threshold from LAST recorded point
+        if (dist > THRESHOLD_METERS) {
+          candidateLat = lat;
+          candidateLng = lng;
+          if (!outTimer) {
+             outTimer = setTimeout(function() {
+                sendLocationToServer(candidateLat, candidateLng, false);
+                lastLat = candidateLat;
+                lastLng = candidateLng;
+                outTimer = null;
+             }, STAY_TIME_MS);
+          }
+        } else {
+          if (outTimer) {
+             clearTimeout(outTimer);
+             outTimer = null;
+          }
+        }
+      },
+      function () {
+        // Silently ignore watch errors
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+    );
+  }
+
+  function showLocationError(message) {
+    const getLocationBtn = document.getElementById("getLocationBtn");
+    const statusDiv = document.getElementById("locationStatus");
+    const statusMessage = document.getElementById("locationMessage");
+
+    statusDiv.style.display = "block";
+    statusDiv.className = "alert alert-danger";
+    statusMessage.innerHTML =
+      '<i class="fas fa-exclamation-triangle"></i> ' + message;
+
+    getLocationBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Get Location';
+    getLocationBtn.disabled = false;
+  }
+
+  // Stop tracking when the form is submitted (check-in saved)
+  document.addEventListener("DOMContentLoaded", function () {
+    var form = document.querySelector("form");
+    if (form) {
+      form.addEventListener("submit", function () {
+        stopTracking(); // stop watchPosition within this page
+        // Mark tracking as active in localStorage so footer.html
+        // restarts watchPosition on the next page (attendance list etc.)
+        if (checkinLat !== null && checkinLng !== null) {
+          localStorage.setItem("HRMS_tracking_active", "true");
+        }
+      });
+    }
+  });
+</script>
+
+{% include 'accounts/footer.html' %}

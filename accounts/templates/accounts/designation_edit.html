@@ -1,0 +1,64 @@
+{% include 'accounts/header.html' %}
+{% include 'accounts/sidebar.html' %}
+{% include 'accounts/topbar.html' %}
+
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+
+          <h3 class="text-primary">Edit Designation</h3>
+          <hr>
+
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+              <div class="col-md-4 form-group">
+                <label>Department Name</label>
+                <select name="department_name" class="form-control" required>
+                  <option value="">-- Select Department --</option>
+                  <option value="IT" {% if designation.department_name == "IT" %}selected{% endif %}>IT</option>
+                  <option value="HR" {% if designation.department_name == "HR" %}selected{% endif %}>HR</option>
+                  <option value="Finance" {% if designation.department_name == "Finance" %}selected{% endif %}>Finance</option>
+                  <option value="Marketing" {% if designation.department_name == "Marketing" %}selected{% endif %}>Marketing</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 form-group">
+                <label>Designation Name</label>
+                <input
+                  type="text"
+                  name="designation_name"
+                  class="form-control"
+                  value="{{ designation.designation_name }}"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="card-footer bg-white border-top">
+              <div class="text-center">
+                <button class="btn bg-gradient-primary mx-2" type="submit">
+                  <i class="fas fa-save"></i> Update
+                </button>
+                <a href="{% url 'designation_list' %}" class="btn bg-gradient-secondary mx-2">
+                  Cancel
+                </a>
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

@@ -1,0 +1,57 @@
+{% include 'accounts/header.html' %} {% include 'accounts/topbar.html' %} 
+{%include 'accounts/sidebar.html' %}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Edit Department</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+              <div class="col-md-6 form-group">
+                <label
+                  >Department Name <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  name="dept_name"
+                  class="form-control"
+                  value="{{ form.instance.dept_name }}"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="card-footer bg-white border-top mt-3">
+              <div class="text-center">
+                <button class="btn bg-gradient-primary mx-2" type="submit">
+                  <i class="fas fa-save"></i> Update
+                </button>
+                <a
+                  href="{% url 'department_list' %}"
+                  class="btn bg-gradient-secondary mx-2"
+                >
+                  Cancel
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% include 'accounts/footer.html' %}

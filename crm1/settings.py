@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     "quickhr.in",
     "www.quickhr.in",
     "147.93.107.11",
-    https://hrms-wswu.onrender.com
+     "hrms-wswu.onrender.com",
+    "https://hrms-wswu.onrender.com"
 ]  # Add your domain for production
 
 

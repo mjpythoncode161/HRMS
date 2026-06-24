@@ -28,25 +28,15 @@ DEBUG = True  # Set to False in production
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "quickhr.in",
-    "www.quickhr.in",
     "147.93.107.11",
-     "hrms-wswu.onrender.com",
-    "https://hrms-wswu.onrender.com"
-]  # Add your domain for production
-
-
-ALLOWED_HOSTS = [
-    "*",
-    "localhost",
-    "127.0.0.1",
-    "https://hrms-wswu.onrender.com",
+    "hrms-wswu.onrender.com",
 ]
-
 
 CSRF_TRUSTED_ORIGINS = [
     "https://hrms-wswu.onrender.com",
 ]
+
+
 # Application definition
 
 INSTALLED_APPS = [
